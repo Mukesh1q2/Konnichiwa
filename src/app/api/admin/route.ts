@@ -1,11 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { DatabaseService } from '@/lib/database';
-import { AuthService } from '@/lib/auth-service';
-import { EmailService } from '@/lib/email-service';
 
 // Force dynamic rendering to prevent build-time execution
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
+
+// Lazy load dependencies to prevent build-time execution
+let DatabaseService: any;
+let AuthService: any;
+let EmailService: any;
+
+// Initialize services only at runtime
+async function initServices() {
+  if (!DatabaseService) {
+    DatabaseService = (await import('@/lib/database')).DatabaseService;
+    AuthService = (await import('@/lib/auth-service')).AuthService;
+    EmailService = (await import('@/lib/email-service')).EmailService;
+  }
+}
 
 // Admin API middleware
 async function verifyAdminAccess(request: NextRequest): Promise<{ success: boolean; user?: any; error?: string }> {
@@ -35,6 +46,7 @@ async function verifyAdminAccess(request: NextRequest): Promise<{ success: boole
 
 // Dashboard Statistics
 export async function GET(request: NextRequest) {
+  await initServices();
   try {
     const authResult = await verifyAdminAccess(request);
     if (!authResult.success) {
@@ -235,6 +247,7 @@ async function getAdminNotifications() {
 
 // Bulk Operations
 export async function POST(request: NextRequest) {
+  await initServices();
   try {
     const authResult = await verifyAdminAccess(request);
     if (!authResult.success) {
