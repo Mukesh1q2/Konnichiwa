@@ -1,0 +1,524 @@
+// Performance optimization and caching system
+import Redis from 'ioredis';
+
+// Initialize Redis client for caching
+const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+
+// Cache configuration
+const cacheConfig = {
+  events: {
+    ttl: 300, // 5 minutes
+    key: 'events:{brand}:{category}:{featured}'
+  },
+  articles: {
+    ttl: 600, // 10 minutes
+    key: 'articles:{brand}:{category}'
+  },
+  gallery: {
+    ttl: 900, // 15 minutes
+    key: 'gallery:{brand}:{category}'
+  },
+  users: {
+    ttl: 1800, // 30 minutes
+    key: 'users:{id}'
+  },
+  search: {
+    ttl: 60, // 1 minute
+    key: 'search:{query}:{filters}'
+  },
+  statistics: {
+    ttl: 3600, // 1 hour
+    key: 'stats:{type}'
+  }
+};
+
+export interface CacheOptions {
+  ttl?: number;
+  forceRefresh?: boolean;
+  tags?: string[];
+}
+
+export interface PerformanceMetrics {
+  responseTime: number;
+  cacheHit: boolean;
+  databaseQueries: number;
+  memoryUsage: number;
+  timestamp: Date;
+}
+
+export class PerformanceService {
+  // Generic caching decorator
+  static async cache<T>(
+    key: string,
+    ttl: number,
+    fetcher: () => Promise<T>,
+    options: CacheOptions = {}
+  ): Promise<{ data: T; fromCache: boolean }> {
+    const startTime = Date.now();
+    
+    try {
+      // Check cache unless force refresh
+      if (!options.forceRefresh) {
+        const cached = await redis.get(key);
+        if (cached) {
+          const data = JSON.parse(cached);
+          const responseTime = Date.now() - startTime;
+          
+          return {
+            data,
+            fromCache: true
+          };
+        }
+      }
+
+      // Fetch fresh data
+      const data = await fetcher();
+      
+      // Store in cache
+      await redis.setex(key, ttl, JSON.stringify(data));
+      
+      // Add to cache tags for invalidation
+      if (options.tags) {
+        for (const tag of options.tags) {
+          await redis.sadd(`tag:${tag}`, key);
+        }
+      }
+
+      const responseTime = Date.now() - startTime;
+      
+      return {
+        data,
+        fromCache: false
+      };
+    } catch (error) {
+      // Fallback to direct fetch
+      const data = await fetcher();
+      return { data, fromCache: false };
+    }
+  }
+
+  // Invalidate cache by tags
+  static async invalidateByTags(tags: string[]): Promise<void> {
+    try {
+      for (const tag of tags) {
+        const keys = await redis.smembers(`tag:${tag}`);
+        if (keys.length > 0) {
+          await redis.del(...keys);
+          await redis.del(`tag:${tag}`);
+        }
+      }
+    } catch (error) {
+    }
+  }
+
+  // Cache events with smart invalidation
+  static async getEventsCache(brand?: string, category?: string, featured?: boolean) {
+    const cacheKey = `events:${brand || 'all'}:${category || 'all'}:${featured !== undefined ? featured : 'all'}`;
+    const ttl = cacheConfig.events.ttl;
+    
+    return this.cache(cacheKey, ttl, async () => {
+      // This would call your database service
+      const { DatabaseService } = await import('./database');
+      return await DatabaseService.getEvents({ brand, category, featured });
+    }, {
+      tags: ['events', brand || 'all', category || 'all']
+    });
+  }
+
+  // Cache articles with smart invalidation
+  static async getArticlesCache(brand?: string, category?: string) {
+    const cacheKey = `articles:${brand || 'all'}:${category || 'all'}`;
+    const ttl = cacheConfig.articles.ttl;
+    
+    return this.cache(cacheKey, ttl, async () => {
+      const { DatabaseService } = await import('./database');
+      return await DatabaseService.getMagazineArticles({ brand, category });
+    }, {
+      tags: ['articles', brand || 'all', category || 'all']
+    });
+  }
+
+  // Cache search results
+  static async getSearchCache(query: string, filters: any) {
+    const cacheKey = `search:${Buffer.from(JSON.stringify({ query, filters })).toString('base64')}`;
+    const ttl = cacheConfig.search.ttl;
+    
+    return this.cache(cacheKey, ttl, async () => {
+      const { DatabaseService } = await import('./database');
+      return await DatabaseService.search(query, 'events');
+    }, {
+      tags: ['search']
+    });
+  }
+
+  // Cache statistics with longer TTL
+  static async getStatisticsCache(type: string) {
+    const cacheKey = `stats:${type}`;
+    const ttl = cacheConfig.statistics.ttl;
+    
+    return this.cache(cacheKey, ttl, async () => {
+      // Calculate statistics based on type
+      switch (type) {
+        case 'dashboard':
+          return await this.calculateDashboardStats();
+        case 'events':
+          return await this.calculateEventStats();
+        case 'users':
+          return await this.calculateUserStats();
+        default:
+          return {};
+      }
+    }, {
+      tags: ['statistics', type]
+    });
+  }
+
+  // Calculate dashboard statistics
+  static async calculateDashboardStats() {
+    try {
+      const { DatabaseService } = await import('./database');
+      
+      // Parallel database queries
+      const [events, tickets, subscribers, contacts] = await Promise.all([
+        DatabaseService.getEvents(),
+        DatabaseService.getTickets(),
+        DatabaseService.getNewsletterSubscribers(),
+        DatabaseService.getContacts()
+      ]);
+
+      const stats = {
+        totalEvents: events.length,
+        upcomingEvents: events.filter(e => e.status === 'upcoming').length,
+        totalTickets: tickets.length,
+        confirmedTickets: tickets.filter(t => t.status === 'confirmed').length,
+        totalRevenue: tickets
+          .filter(t => t.status === 'confirmed')
+          .reduce((sum, t) => sum + t.total_price, 0),
+        newsletterSubscribers: subscribers.length,
+        pendingContacts: contacts.filter(c => c.status === 'new').length,
+        lastUpdated: new Date().toISOString()
+      };
+
+      return stats;
+    } catch (error) {
+      return {};
+    }
+  }
+
+  // Calculate event statistics
+  static async calculateEventStats() {
+    try {
+      const { DatabaseService } = await import('./database');
+      const events = await DatabaseService.getEvents();
+
+      const stats = {
+        totalEvents: events.length,
+        eventsByBrand: {
+          konnichiwa: events.filter(e => e.brand === 'konnichiwa').length,
+          namaste: events.filter(e => e.brand === 'namaste').length
+        },
+        eventsByCategory: this.groupBy(events, 'category'),
+        eventsByStatus: this.groupBy(events, 'status'),
+        averageCapacity: events.reduce((sum, e) => sum + e.capacity, 0) / events.length,
+        totalCapacity: events.reduce((sum, e) => sum + e.capacity, 0),
+        lastUpdated: new Date().toISOString()
+      };
+
+      return stats;
+    } catch (error) {
+      return {};
+    }
+  }
+
+  // Calculate user statistics
+  static async calculateUserStats() {
+    try {
+      const { DatabaseService } = await import('./database');
+      const tickets = await DatabaseService.getTickets();
+      const subscribers = await DatabaseService.getNewsletterSubscribers();
+
+      const stats = {
+        totalTicketsSold: tickets.length,
+        confirmedTickets: tickets.filter(t => t.status === 'confirmed').length,
+        ticketsByType: this.groupBy(tickets, 'type'),
+        ticketsByBrand: this.groupBy(tickets, 'brand'),
+        newsletterSubscribers: subscribers.length,
+        subscribersByBrand: this.groupBy(subscribers, 'brand'),
+        revenueByMonth: this.groupRevenueByMonth(tickets),
+        lastUpdated: new Date().toISOString()
+      };
+
+      return stats;
+    } catch (error) {
+      return {};
+    }
+  }
+
+  // Helper function to group data by property
+  private static groupBy<T>(array: T[], key: keyof T): Record<string, number> {
+    return array.reduce((groups, item) => {
+      const value = String(item[key]);
+      groups[value] = (groups[value] || 0) + 1;
+      return groups;
+    }, {} as Record<string, number>);
+  }
+
+  // Helper function to group revenue by month
+  private static groupRevenueByMonth(tickets: any[]): Record<string, number> {
+    return tickets
+      .filter(t => t.status === 'confirmed')
+      .reduce((groups, ticket) => {
+        const month = new Date(ticket.purchase_date).toISOString().substring(0, 7); // YYYY-MM
+        groups[month] = (groups[month] || 0) + ticket.total_price;
+        return groups;
+      }, {} as Record<string, number>);
+  }
+
+  // Performance monitoring
+  static async trackPerformance(operation: string, duration: number, metadata: any = {}) {
+    try {
+      const metric = {
+        operation,
+        duration,
+        metadata,
+        timestamp: new Date().toISOString(),
+        memoryUsage: process.memoryUsage()
+      };
+
+      // Store in Redis for real-time monitoring
+      await redis.lpush('performance:metrics', JSON.stringify(metric));
+      await redis.ltrim('performance:metrics', 0, 999); // Keep last 1000 metrics
+      
+      // Also log slow operations
+      if (duration > 1000) { // Log operations taking more than 1 second
+        console.warn(`Slow operation detected: ${operation} took ${duration}ms`, metadata);
+      }
+    } catch (error) {
+    }
+  }
+
+  // Get performance metrics
+  static async getPerformanceMetrics(limit: number = 100) {
+    try {
+      const metrics = await redis.lrange('performance:metrics', 0, limit - 1);
+      return metrics.map(metric => JSON.parse(metric));
+    } catch (error) {
+      return [];
+    }
+  }
+
+  // Health check for caching system
+  static async healthCheck() {
+    try {
+      const start = Date.now();
+      await redis.ping();
+      const pingTime = Date.now() - start;
+
+      const memory = await redis.info('memory');
+      const connected = await redis.info('connected_clients');
+
+      return {
+        status: 'healthy',
+        pingTime,
+        memory: this.parseRedisInfo(memory),
+        connected: this.parseRedisInfo(connected),
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      return {
+        status: 'unhealthy',
+        error: error.message,
+        timestamp: new Date().toISOString()
+      };
+    }
+  }
+
+  // Parse Redis INFO output
+  private static parseRedisInfo(info: string): Record<string, string> {
+    return info.split('\r\n').reduce((acc, line) => {
+      const [key, value] = line.split(':');
+      if (key && value) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {} as Record<string, string>);
+  }
+
+  // Clear all cache (for maintenance)
+  static async clearAllCache(): Promise<void> {
+    try {
+      const keys = await redis.keys('cache:*');
+      const tagKeys = await redis.keys('tag:*');
+      
+      if (keys.length > 0) {
+        await redis.del(...keys);
+      }
+      if (tagKeys.length > 0) {
+        await redis.del(...tagKeys);
+      }
+      
+    } catch (error) {
+    }
+  }
+
+  // Get cache statistics
+  static async getCacheStats() {
+    try {
+      const cacheKeys = await redis.keys('cache:*');
+      const tagKeys = await redis.keys('tag:*');
+      
+      const stats = {
+        cacheKeys: cacheKeys.length,
+        tagKeys: tagKeys.length,
+        totalKeys: cacheKeys.length + tagKeys.length,
+        memoryUsage: await redis.info('used_memory'),
+        hitRate: 0, // Would need to track hits/misses
+        lastUpdated: new Date().toISOString()
+      };
+
+      return stats;
+    } catch (error) {
+      return {};
+    }
+  }
+
+  // Preload frequently accessed data
+  static async preloadCache() {
+    try {
+      
+      // Preload events
+      await this.getEventsCache();
+      await this.getEventsCache('konnichiwa');
+      await this.getEventsCache('namaste');
+      
+      // Preload articles
+      await this.getArticlesCache();
+      await this.getArticlesCache('konnichiwa');
+      await this.getArticlesCache('namaste');
+      
+      // Preload statistics
+      await this.getStatisticsCache('dashboard');
+      await this.getStatisticsCache('events');
+      
+    } catch (error) {
+    }
+  }
+}
+
+// Middleware for automatic performance tracking
+export const withPerformanceTracking = (handler: Function) => {
+  return async (req: Request, res: any) => {
+    const start = Date.now();
+    const operation = `${req.method} ${req.url}`;
+    
+    try {
+      const response = await handler(req, res);
+      const duration = Date.now() - start;
+      
+      await PerformanceService.trackPerformance(operation, duration, {
+        statusCode: res.statusCode,
+        userAgent: req.headers.get('user-agent'),
+        ip: req.ip
+      });
+      
+      return response;
+    } catch (error) {
+      const duration = Date.now() - start;
+      
+      await PerformanceService.trackPerformance(operation, duration, {
+        error: error.message,
+        statusCode: 500
+      });
+      
+      throw error;
+    }
+  };
+};
+
+// Analytics tracking service
+export class AnalyticsService {
+  // Track page views
+  static async trackPageView(page: string, userId?: string, metadata: any = {}) {
+    try {
+      const event = {
+        type: 'page_view',
+        page,
+        userId,
+        metadata,
+        timestamp: new Date().toISOString(),
+        sessionId: metadata.sessionId || 'anonymous'
+      };
+
+      await redis.lpush('analytics:page_views', JSON.stringify(event));
+      await redis.ltrim('analytics:page_views', 0, 9999); // Keep last 10k events
+    } catch (error) {
+    }
+  }
+
+  // Track user actions
+  static async trackAction(action: string, userId?: string, metadata: any = {}) {
+    try {
+      const event = {
+        type: 'user_action',
+        action,
+        userId,
+        metadata,
+        timestamp: new Date().toISOString(),
+        sessionId: metadata.sessionId || 'anonymous'
+      };
+
+      await redis.lpush('analytics:actions', JSON.stringify(event));
+      await redis.ltrim('analytics:actions', 0, 9999);
+    } catch (error) {
+    }
+  }
+
+  // Get analytics data
+  static async getAnalyticsData(type: string, timeframe: string = '24h') {
+    try {
+      const key = `analytics:${type}`;
+      const events = await redis.lrange(key, 0, 999);
+      
+      const cutoff = new Date();
+      cutoff.setHours(cutoff.getHours() - parseInt(timeframe.replace('h', '')));
+      
+      const filteredEvents = events
+        .map(e => JSON.parse(e))
+        .filter(e => new Date(e.timestamp) > cutoff);
+      
+      return {
+        type,
+        timeframe,
+        totalEvents: filteredEvents.length,
+        events: filteredEvents,
+        summary: this.generateSummary(filteredEvents)
+      };
+    } catch (error) {
+      return { type, timeframe, totalEvents: 0, events: [], summary: {} };
+    }
+  }
+
+  // Generate analytics summary
+  private static generateSummary(events: any[]) {
+    const summary: any = {};
+    
+    // Group by type/action
+    summary.byAction = events.reduce((acc, event) => {
+      const key = event.action || event.type;
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {});
+
+    // Group by page
+    summary.byPage = events
+      .filter(e => e.page)
+      .reduce((acc, event) => {
+        acc[event.page] = (acc[event.page] || 0) + 1;
+        return acc;
+      }, {});
+
+    return summary;
+  }
+}
+
+export default PerformanceService;

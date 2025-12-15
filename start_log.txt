@@ -1,0 +1,14 @@
+file:///C:/Users/crypt/Downloads/Ai%20projects/websites/Konnichiwa%20Japan/konnichiwa-namaste-website/next.config.js:91
+module.exports = nextConfig;
+^
+
+ReferenceError: module is not defined in ES module scope
+This file is being treated as an ES module because it has a '.js' file extension and 'C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\package.json' contains "type": "module". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.
+    at file:///C:/Users/crypt/Downloads/Ai%20projects/websites/Konnichiwa%20Japan/konnichiwa-namaste-website/next.config.js:91:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:371:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:669:26)
+    at async loadConfig (C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\node_modules\next\dist\server\config.js:698:36)
+    at async nextDev (C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\node_modules\next\dist\cli\next-dev.js:190:14)
+    at async main (C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\node_modules\next\dist\bin\next:157:5)
+
+Node.js v24.5.0

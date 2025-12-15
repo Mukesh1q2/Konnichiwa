@@ -1,0 +1,44 @@
+
+> konnichiwa-namaste-website@1.0.0 build:node18
+> node scripts/build-node18.js
+
+≡ƒÅù∩╕Å  Starting Node.js 18 compatible production build...
+Γ£à Node.js v24.5.0 detected
+(node:38640) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+   Γû▓ Next.js 14.0.4
+   - Environments: .env
+
+   Creating an optimized production build ...
+ ΓÜá Compiled with warnings
+
+./src/app/sponsors/page.tsx
+Attempted import error: 'Handshake' is not exported from '__barrel_optimize__?names=Award,Building,Globe,Handshake,Heart,Sparkles,Star,Target,TrendingUp,Users!=!lucide-react' (imported as 'Handshake').
+
+Import trace for requested module:
+./src/app/sponsors/page.tsx
+
+./src/app/sponsors/page.tsx
+Attempted import error: 'Handshake' is not exported from '__barrel_optimize__?names=Award,Building,Globe,Handshake,Heart,Sparkles,Star,Target,TrendingUp,Users!=!lucide-react' (imported as 'Handshake').
+
+Import trace for requested module:
+./src/app/sponsors/page.tsx
+
+   Linting and checking validity of types ...
+ Γ¿» ESLint: Failed to load config "next/typescript" to extend from. Referenced from: C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\.eslintrc.json
+Failed to compile.
+
+./src/app/api/newsletter/route.ts:109:26
+Type error: Argument of type '{ id: string; email: any; name: any; brand: any; interests: any; status: string; subscribedAt: string; lastEmailSent: null; }' is not assignable to parameter of type '{ id: string; email: string; name: string; brand: string; interests: string[]; status: string; subscribedAt: string; lastEmailSent: string; }'.
+  Types of property 'lastEmailSent' are incompatible.
+    Type 'null' is not assignable to type 'string'.
+
+  107 |
+  108 |     // In production, save to database and send welcome email
+> 109 |     mockSubscribers.push(newSubscriber);
+      |                          ^
+  110 |
+  111 |     return NextResponse.json({
+  112 |       success: true,
+Γ¥î Build failed with code 1
+≡ƒöì Check the logs above for details

@@ -1,0 +1,486 @@
+'use client';
+
+import { useState, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Search,
+  X,
+  Calendar,
+  MapPin,
+  Tag,
+  User,
+  BookOpen,
+  Image,
+  Filter,
+  SortAsc,
+  SortDesc
+} from 'lucide-react';
+import { DatabaseService } from '@/lib/database';
+import { useBrand } from '@/lib/brand-context';
+
+interface SearchResult {
+  id: string;
+  type: 'event' | 'article' | 'gallery' | 'user';
+  title: string;
+  description: string;
+  image?: string;
+  date?: string;
+  location?: string;
+  author?: string;
+  category?: string;
+  tags?: string[];
+  brand?: 'konnichiwa' | 'namaste';
+  url: string;
+  relevanceScore: number;
+}
+
+interface SearchFilters {
+  brand?: 'konnichiwa' | 'namaste' | 'all';
+  type?: 'event' | 'article' | 'gallery' | 'all';
+  category?: string;
+  dateRange?: {
+    start: string;
+    end: string;
+  };
+  sortBy?: 'relevance' | 'date' | 'title';
+  sortOrder?: 'asc' | 'desc';
+}
+
+interface SearchProps {
+  onResultClick?: (result: SearchResult) => void;
+  showFilters?: boolean;
+  placeholder?: string;
+  className?: string;
+}
+
+const SearchComponent = ({
+  onResultClick,
+  showFilters = true,
+  placeholder = "Search events, articles, gallery...",
+  className = ""
+}: SearchProps) => {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [filters, setFilters] = useState<SearchFilters>({
+    brand: 'all',
+    type: 'all',
+    sortBy: 'relevance',
+    sortOrder: 'desc'
+  });
+  const { brand } = useBrand();
+
+  // Debounced search
+  const debouncedQuery = useMemo(() => {
+    const timer = setTimeout(() => {
+      if (query.trim().length > 2) {
+        performSearch(query, filters);
+      } else {
+        setResults([]);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [query, filters]);
+
+  useEffect(() => {
+    return debouncedQuery;
+  }, [debouncedQuery]);
+
+  const performSearch = async (searchQuery: string, searchFilters: SearchFilters) => {
+    try {
+      setLoading(true);
+      const searchResults: SearchResult[] = [];
+
+      // Search events
+      if (searchFilters.type === 'all' || searchFilters.type === 'event') {
+        try {
+          const events = await DatabaseService.search(searchQuery, 'events');
+          const eventResults = events.map((event: any) => ({
+            id: event.id,
+            type: 'event' as const,
+            title: event.title,
+            description: event.description,
+            image: event.image,
+            date: event.date,
+            location: event.location,
+            category: event.category,
+            tags: event.tags,
+            brand: event.brand,
+            url: `/events/${event.id}`,
+            relevanceScore: calculateRelevance(searchQuery, event.title, event.description)
+          }));
+          searchResults.push(...eventResults);
+        } catch (error) {
+        }
+      }
+
+      // Search articles
+      if (searchFilters.type === 'all' || searchFilters.type === 'article') {
+        try {
+          const articles = await DatabaseService.search(searchQuery, 'magazine');
+          const articleResults = articles.map((article: any) => ({
+            id: article.id,
+            type: 'article' as const,
+            title: article.title,
+            description: article.excerpt || article.content.substring(0, 200) + '...',
+            image: article.image_url,
+            date: article.published_at,
+            author: article.author.name,
+            category: article.category,
+            tags: article.tags,
+            brand: article.brand,
+            url: `/magazine/${article.slug}`,
+            relevanceScore: calculateRelevance(searchQuery, article.title, article.excerpt || article.content)
+          }));
+          searchResults.push(...articleResults);
+        } catch (error) {
+        }
+      }
+
+      // Search gallery
+      if (searchFilters.type === 'all' || searchFilters.type === 'gallery') {
+        try {
+          const galleryImages = await DatabaseService.search(searchQuery, 'gallery');
+          const galleryResults = galleryImages.map((image: any) => ({
+            id: image.id,
+            type: 'gallery' as const,
+            title: image.title,
+            description: image.description,
+            image: image.image_url,
+            date: image.date,
+            category: image.category,
+            tags: image.tags,
+            brand: image.brand,
+            url: `/gallery`,
+            relevanceScore: calculateRelevance(searchQuery, image.title, image.description)
+          }));
+          searchResults.push(...galleryResults);
+        } catch (error) {
+        }
+      }
+
+      // Filter by brand if specified
+      let filteredResults = searchResults;
+      if (searchFilters.brand && searchFilters.brand !== 'all') {
+        filteredResults = searchResults.filter(result =>
+          result.brand === searchFilters.brand || (result.brand as any) === 'both'
+        );
+      }
+
+      // Sort results
+      filteredResults.sort((a, b) => {
+        if (searchFilters.sortBy === 'date') {
+          const dateA = new Date(a.date || 0).getTime();
+          const dateB = new Date(b.date || 0).getTime();
+          return searchFilters.sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+        } else if (searchFilters.sortBy === 'title') {
+          return searchFilters.sortOrder === 'asc'
+            ? a.title.localeCompare(b.title)
+            : b.title.localeCompare(a.title);
+        } else {
+          return searchFilters.sortOrder === 'asc'
+            ? a.relevanceScore - b.relevanceScore
+            : b.relevanceScore - a.relevanceScore;
+        }
+      });
+
+      setResults(filteredResults);
+    } catch (error) {
+      setResults([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const calculateRelevance = (query: string, title: string, content: string): number => {
+    const queryLower = query.toLowerCase();
+    const titleLower = title.toLowerCase();
+    const contentLower = content.toLowerCase();
+
+    let score = 0;
+
+    // Title matches get higher score
+    if (titleLower.includes(queryLower)) {
+      score += 100;
+      // Exact word matches in title
+      const titleWords = titleLower.split(' ');
+      const queryWords = queryLower.split(' ');
+      queryWords.forEach(word => {
+        if (titleWords.includes(word)) {
+          score += 50;
+        }
+      });
+    }
+
+    // Content matches
+    if (contentLower.includes(queryLower)) {
+      score += 50;
+    }
+
+    // Partial matches
+    const titleChars = titleLower.split(queryLower).length - 1;
+    score += titleChars * 25;
+
+    return score;
+  };
+
+  const handleResultClick = (result: SearchResult) => {
+    setIsOpen(false);
+    setQuery('');
+    onResultClick?.(result);
+  };
+
+  const clearSearch = () => {
+    setQuery('');
+    setResults([]);
+    setIsOpen(false);
+  };
+
+  const updateFilter = (key: keyof SearchFilters, value: any) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+  };
+
+  const typeIcons = {
+    event: Calendar,
+    article: BookOpen,
+    gallery: Image,
+    user: User
+  };
+
+  const typeLabels = {
+    event: 'Event',
+    article: 'Article',
+    gallery: 'Gallery',
+    user: 'User'
+  };
+
+  const brandEmojis = {
+    konnichiwa: '🇯🇵',
+    namaste: '🇮🇳'
+  };
+
+  return (
+    <div className={`relative ${className}`}>
+      {/* Search Input */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setIsOpen(true);
+          }}
+          onFocus={() => setIsOpen(true)}
+          placeholder={placeholder}
+          className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+        />
+        {query && (
+          <button
+            onClick={clearSearch}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        )}
+      </div>
+
+      {/* Search Results Dropdown */}
+      <AnimatePresence>
+        {isOpen && (query || results.length > 0) && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-96 overflow-hidden"
+          >
+            {/* Filters */}
+            {showFilters && results.length > 0 && (
+              <div className="p-4 border-b border-gray-200 bg-gray-50">
+                <div className="flex flex-wrap gap-4">
+                  <select
+                    value={filters.type}
+                    onChange={(e) => updateFilter('type', e.target.value)}
+                    className="text-sm border border-gray-300 rounded px-2 py-1"
+                  >
+                    <option value="all">All Types</option>
+                    <option value="event">Events</option>
+                    <option value="article">Articles</option>
+                    <option value="gallery">Gallery</option>
+                  </select>
+
+                  <select
+                    value={filters.brand}
+                    onChange={(e) => updateFilter('brand', e.target.value)}
+                    className="text-sm border border-gray-300 rounded px-2 py-1"
+                  >
+                    <option value="all">All Brands</option>
+                    <option value="konnichiwa">🇯🇵 Konnichiwa Japan</option>
+                    <option value="namaste">🇮🇳 Namaste India</option>
+                  </select>
+
+                  <select
+                    value={`${filters.sortBy}-${filters.sortOrder}`}
+                    onChange={(e) => {
+                      const [sortBy, sortOrder] = e.target.value.split('-');
+                      updateFilter('sortBy', sortBy);
+                      updateFilter('sortOrder', sortOrder);
+                    }}
+                    className="text-sm border border-gray-300 rounded px-2 py-1"
+                  >
+                    <option value="relevance-desc">Most Relevant</option>
+                    <option value="date-desc">Newest First</option>
+                    <option value="date-asc">Oldest First</option>
+                    <option value="title-asc">Title A-Z</option>
+                    <option value="title-desc">Title Z-A</option>
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {/* Results */}
+            <div className="max-h-80 overflow-y-auto">
+              {loading ? (
+                <div className="p-8 text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500 mx-auto"></div>
+                  <p className="text-gray-500 mt-2">Searching...</p>
+                </div>
+              ) : results.length > 0 ? (
+                <div className="py-2">
+                  {results.map((result) => {
+                    const IconComponent = typeIcons[result.type];
+                    return (
+                      <motion.button
+                        key={`${result.type}-${result.id}`}
+                        onClick={() => handleResultClick(result)}
+                        className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-3 transition-colors"
+                        whileHover={{ backgroundColor: '#f9fafb' }}
+                      >
+                        <div className="flex-shrink-0">
+                          {result.image ? (
+                            <img
+                              src={result.image}
+                              alt={result.title}
+                              className="h-10 w-10 rounded-lg object-cover"
+                            />
+                          ) : (
+                            <div className="h-10 w-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                              <IconComponent className="h-5 w-5 text-gray-400" />
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center space-x-2">
+                            <h4 className="text-sm font-medium text-gray-900 truncate">
+                              {result.title}
+                            </h4>
+                            {result.brand && (
+                              <span className="text-xs">
+                                {brandEmojis[result.brand]}
+                              </span>
+                            )}
+                          </div>
+
+                          <p className="text-sm text-gray-600 truncate mt-1">
+                            {result.description}
+                          </p>
+
+                          <div className="flex items-center space-x-4 mt-1 text-xs text-gray-500">
+                            <span className="flex items-center">
+                              <IconComponent className="h-3 w-3 mr-1" />
+                              {typeLabels[result.type]}
+                            </span>
+
+                            {result.date && (
+                              <span>{new Date(result.date).toLocaleDateString()}</span>
+                            )}
+
+                            {result.location && (
+                              <span className="flex items-center">
+                                <MapPin className="h-3 w-3 mr-1" />
+                                {result.location}
+                              </span>
+                            )}
+
+                            {result.category && (
+                              <span className="flex items-center">
+                                <Tag className="h-3 w-3 mr-1" />
+                                {result.category}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              ) : query.trim().length > 2 ? (
+                <div className="p-8 text-center text-gray-500">
+                  <Search className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                  <p>No results found for "{query}"</p>
+                  <p className="text-sm mt-1">Try different keywords or check your spelling</p>
+                </div>
+              ) : (
+                <div className="p-8 text-center text-gray-500">
+                  <Search className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                  <p>Start typing to search</p>
+                  <p className="text-sm mt-1">Search events, articles, and gallery images</p>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Overlay to close search when clicking outside */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-40"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+    </div>
+  );
+};
+
+// Search Results Page Component
+const SearchResultsPage = () => {
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState<SearchFilters>({});
+
+  // This would be used when navigating from search component
+  useEffect(() => {
+    // Load search results from URL params or state
+    const urlParams = new URLSearchParams(window.location.search);
+    const query = urlParams.get('q');
+    if (query) {
+      // Perform search and display results on page
+      // TODO: performSearch is not accessible here. Refactor search logic to a hook.
+      // performSearch(query, filters);
+    }
+  }, []);
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="mb-8">
+        <SearchComponent
+          onResultClick={(result) => window.location.href = result.url}
+          showFilters={true}
+        />
+      </div>
+
+      {/* Results would be displayed here */}
+      <div className="space-y-6">
+        {/* Search results content */}
+      </div>
+    </div>
+  );
+};
+
+export { SearchComponent, SearchResultsPage };
+export type { SearchResult, SearchFilters };

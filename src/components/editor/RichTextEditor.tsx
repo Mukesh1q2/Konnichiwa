@@ -1,0 +1,511 @@
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Bold,
+  Italic,
+  Underline,
+  Link,
+  Image,
+  Video,
+  FileText,
+  List,
+  ListOrdered,
+  Quote,
+  Code,
+  Eye,
+  Save,
+  Undo,
+  Redo,
+  Type,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
+  Palette,
+  Table,
+  Grid3X3,
+  Youtube,
+  Upload,
+  Download,
+  X,
+  Check,
+  Plus,
+  Search,
+  Filter,
+  Folder,
+  File
+} from 'lucide-react';
+
+interface EditorProps {
+  content: string;
+  onChange: (content: string) => void;
+  placeholder?: string;
+  onSave?: () => void;
+  showPreview?: boolean;
+  className?: string;
+}
+
+interface MediaFile {
+  id: string;
+  name: string;
+  type: 'image' | 'video' | 'document';
+  url: string;
+  size: number;
+  dimensions?: { width: number; height: number };
+  thumbnail?: string;
+  uploadedAt: Date;
+}
+
+interface EditorToolbarProps {
+  onCommand: (command: string, value?: string) => void;
+  onMediaUpload: () => void;
+  onSave: () => void;
+  hasChanges: boolean;
+}
+
+const RichTextEditor = ({
+  content,
+  onChange,
+  placeholder = "Start writing...",
+  onSave,
+  showPreview = false,
+  className = ""
+}: EditorProps) => {
+  const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
+  const [hasChanges, setHasChanges] = useState(false);
+  const editorRef = useRef<HTMLDivElement>(null);
+  const [selectedText, setSelectedText] = useState('');
+
+  useEffect(() => {
+    setHasChanges(content !== (editorRef.current?.innerHTML || ''));
+  }, [content]);
+
+  const handleInput = () => {
+    if (editorRef.current) {
+      onChange(editorRef.current.innerHTML);
+    }
+  };
+
+  const handleCommand = (command: string, value?: string) => {
+    document.execCommand(command, false, value);
+    handleInput();
+    editorRef.current?.focus();
+  };
+
+  const insertImage = (url: string, alt: string = '') => {
+    document.execCommand('insertImage', false, url);
+    handleInput();
+  };
+
+  const insertLink = (url: string, text: string) => {
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const link = document.createElement('a');
+      link.href = url;
+      link.textContent = text || url;
+      link.target = '_blank';
+      range.deleteContents();
+      range.insertNode(link);
+    }
+    handleInput();
+  };
+
+  return (
+    <div className={`bg-white rounded-lg border border-gray-200 overflow-hidden ${className}`}>
+      {/* Tab Navigation */}
+      <div className="border-b border-gray-200">
+        <div className="flex items-center justify-between px-4 py-2">
+          <div className="flex space-x-1">
+            <button
+              onClick={() => setActiveTab('edit')}
+              className={`px-3 py-1 rounded text-sm font-medium transition-colors ${activeTab === 'edit'
+                ? 'bg-red-100 text-red-700'
+                : 'text-gray-600 hover:text-gray-900'
+                }`}
+            >
+              Edit
+            </button>
+            {showPreview && (
+              <button
+                onClick={() => setActiveTab('preview')}
+                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${activeTab === 'preview'
+                  ? 'bg-red-100 text-red-700'
+                  : 'text-gray-600 hover:text-gray-900'
+                  }`}
+              >
+                Preview
+              </button>
+            )}
+          </div>
+          <div className="flex items-center space-x-2">
+            {hasChanges && (
+              <span className="text-xs text-orange-600 bg-orange-100 px-2 py-1 rounded">
+                Unsaved changes
+              </span>
+            )}
+            {onSave && (
+              <button
+                onClick={onSave}
+                disabled={!hasChanges}
+                className="flex items-center space-x-1 px-3 py-1 bg-red-600 text-white rounded text-sm font-medium hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Save className="h-3 w-3" />
+                <span>Save</span>
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Editor Content */}
+      <div className="min-h-[400px]">
+        <AnimatePresence mode="wait">
+          {activeTab === 'edit' ? (
+            <motion.div
+              key="edit"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="h-full"
+            >
+              {/* Toolbar */}
+              <EditorToolbar
+                onCommand={handleCommand}
+                onMediaUpload={() => { }}
+                onSave={onSave || (() => { })}
+                hasChanges={hasChanges}
+              />
+
+              {/* Editor */}
+              <div
+                ref={editorRef}
+                contentEditable
+                onInput={handleInput}
+                onKeyUp={() => {
+                  const selection = window.getSelection();
+                  setSelectedText(selection?.toString() || '');
+                }}
+                onMouseUp={() => {
+                  const selection = window.getSelection();
+                  setSelectedText(selection?.toString() || '');
+                }}
+                onSelect={() => {
+                  const selection = window.getSelection();
+                  setSelectedText(selection?.toString() || '');
+                }}
+                className="prose prose-sm max-w-none p-6 min-h-[350px] focus:outline-none"
+                style={{
+                  wordBreak: 'break-word',
+                  overflowWrap: 'break-word'
+                }}
+                dangerouslySetInnerHTML={{ __html: content }}
+              />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="preview"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="p-6"
+            >
+              <div
+                className="prose prose-sm max-w-none"
+                dangerouslySetInnerHTML={{ __html: content }}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+};
+
+const EditorToolbar = ({ onCommand, onMediaUpload, onSave, hasChanges }: EditorToolbarProps) => {
+  const toolbarGroups = [
+    // Text Formatting
+    [
+      { command: 'bold', icon: Bold, title: 'Bold' },
+      { command: 'italic', icon: Italic, title: 'Italic' },
+      { command: 'underline', icon: Underline, title: 'Underline' }
+    ],
+    // Lists
+    [
+      { command: 'insertUnorderedList', icon: List, title: 'Bullet List' },
+      { command: 'insertOrderedList', icon: ListOrdered, title: 'Numbered List' }
+    ],
+    // Alignment
+    [
+      { command: 'justifyLeft', icon: AlignLeft, title: 'Align Left' },
+      { command: 'justifyCenter', icon: AlignCenter, title: 'Align Center' },
+      { command: 'justifyRight', icon: AlignRight, title: 'Align Right' },
+      { command: 'justifyFull', icon: AlignJustify, title: 'Justify' }
+    ],
+    // Insert
+    [
+      { command: 'createLink', icon: Link, title: 'Insert Link' },
+      { command: 'insertImage', icon: Image, title: 'Insert Image' },
+      { command: 'insertHTML', icon: Code, title: 'Insert Code' }
+    ]
+  ];
+
+  return (
+    <div className="border-b border-gray-200 p-3">
+      <div className="flex items-center space-x-1 flex-wrap">
+        {toolbarGroups.map((group, groupIndex) => (
+          <div key={groupIndex} className="flex items-center space-x-1 border-r border-gray-200 pr-2 last:border-r-0">
+            {group.map((item) => (
+              <button
+                key={item.command}
+                onClick={() => onCommand(item.command)}
+                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
+                title={item.title}
+              >
+                <item.icon className="h-4 w-4" />
+              </button>
+            ))}
+          </div>
+        ))}
+
+        {/* Media Upload */}
+        <div className="border-l border-gray-200 pl-2 ml-2">
+          <button
+            onClick={onMediaUpload}
+            className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
+            title="Upload Media"
+          >
+            <Upload className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Media Management Component
+const MediaManager = ({ onSelect, onClose }: {
+  onSelect: (file: MediaFile) => void;
+  onClose: () => void;
+}) => {
+  const [files, setFiles] = useState<MediaFile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState<'all' | 'image' | 'video' | 'document'>('all');
+  const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    loadMediaFiles();
+  }, []);
+
+  const loadMediaFiles = async () => {
+    try {
+      setLoading(true);
+      // Mock data - in production, this would fetch from your media API
+      const mockFiles: MediaFile[] = [
+        {
+          id: '1',
+          name: 'cherry-blossom.jpg',
+          type: 'image',
+          url: '/images/gallery/cherry-blossom-1.jpg',
+          size: 1024000,
+          dimensions: { width: 1920, height: 1080 },
+          thumbnail: '/images/thumbs/cherry-blossom-1.jpg',
+          uploadedAt: new Date('2024-12-01')
+        },
+        {
+          id: '2',
+          name: 'tea-ceremony.mp4',
+          type: 'video',
+          url: '/videos/tea-ceremony.mp4',
+          size: 52428800,
+          thumbnail: '/images/thumbs/tea-ceremony.jpg',
+          uploadedAt: new Date('2024-12-02')
+        },
+        {
+          id: '3',
+          name: 'dance-workshop.pdf',
+          type: 'document',
+          url: '/documents/dance-workshop.pdf',
+          size: 2048000,
+          uploadedAt: new Date('2024-12-03')
+        }
+      ];
+      setFiles(mockFiles);
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredFiles = files.filter(file => {
+    const matchesSearch = file.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = filterType === 'all' || file.type === filterType;
+    return matchesSearch && matchesType;
+  });
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const uploadedFiles = event.target.files;
+    if (!uploadedFiles) return;
+
+    setUploading(true);
+    try {
+      // In production, upload to your storage service
+      const newFiles: MediaFile[] = Array.from(uploadedFiles).map(file => ({
+        id: Date.now().toString(),
+        name: file.name,
+        type: file.type.startsWith('image/') ? 'image' as const :
+          file.type.startsWith('video/') ? 'video' as const : 'document' as const,
+        url: URL.createObjectURL(file),
+        size: file.size,
+        uploadedAt: new Date()
+      }));
+
+      setFiles(prev => [...prev, ...newFiles]);
+    } catch (error) {
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const getFileIcon = (type: string) => {
+    switch (type) {
+      case 'image': return Image;
+      case 'video': return Video;
+      default: return File;
+    }
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-white rounded-lg shadow-xl w-full max-w-4xl h-[80vh] flex flex-col"
+      >
+        {/* Header */}
+        <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900">Media Manager</h2>
+          <button
+            onClick={onClose}
+            className="p-2 text-gray-400 hover:text-gray-600 rounded"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Controls */}
+        <div className="p-4 border-b border-gray-200 space-y-4">
+          <div className="flex items-center space-x-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search files..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              />
+            </div>
+            <select
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value as any)}
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            >
+              <option value="all">All Types</option>
+              <option value="image">Images</option>
+              <option value="video">Videos</option>
+              <option value="document">Documents</option>
+            </select>
+            <label className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg cursor-pointer hover:bg-red-700">
+              <Upload className="h-4 w-4" />
+              <span>Upload</span>
+              <input
+                type="file"
+                multiple
+                accept="image/*,video/*,.pdf,.doc,.docx"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+            </label>
+          </div>
+        </div>
+
+        {/* File Grid */}
+        <div className="flex-1 overflow-y-auto p-4">
+          {loading ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
+            </div>
+          ) : uploading ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500 mx-auto mb-2"></div>
+                <p className="text-gray-600">Uploading files...</p>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+              {filteredFiles.map((file) => {
+                const IconComponent = getFileIcon(file.type);
+                return (
+                  <motion.div
+                    key={file.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="group cursor-pointer"
+                    onClick={() => onSelect(file)}
+                  >
+                    <div className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+                      {/* Thumbnail */}
+                      <div className="aspect-square bg-gray-100 flex items-center justify-center relative">
+                        {file.type === 'image' && file.thumbnail ? (
+                          <img
+                            src={file.thumbnail}
+                            alt={file.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <IconComponent className="h-8 w-8 text-gray-400" />
+                        )}
+                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-opacity"></div>
+                      </div>
+
+                      {/* File Info */}
+                      <div className="p-2">
+                        <p className="text-sm font-medium text-gray-900 truncate" title={file.name}>
+                          {file.name}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {formatFileSize(file.size)}
+                        </p>
+                        {file.dimensions && (
+                          <p className="text-xs text-gray-500">
+                            {file.dimensions.width} × {file.dimensions.height}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+export { RichTextEditor, MediaManager };
+export type { MediaFile };

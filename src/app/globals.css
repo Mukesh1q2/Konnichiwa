@@ -1,0 +1,251 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Plus+Jakarta+Sans:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
+
+/* Custom CSS Variables for Brand Colors */
+:root {
+  /* Shared Colors */
+  --color-paper: #F9FAFB;
+  --color-surface: #FFFFFF;
+  --color-ink: #111827;
+  --color-slate: #6B7280;
+  --color-border: #E5E7EB;
+  
+  /* Brand Colors - Will be updated via JavaScript */
+  --color-primary: #DC2626;
+  --color-primary-dark: #991B1B;
+  --color-secondary: #1F2937;
+  --color-accent: #FEF2F2;
+}
+
+/* Theme A: Konnichiwa Japan (Crimson & Ink) */
+[data-brand="konnichiwa"] {
+  --color-primary: #DC2626;
+  --color-primary-dark: #991B1B;
+  --color-secondary: #1F2937;
+  --color-accent: #FEF2F2;
+}
+
+/* Theme B: Namaste India (Marigold & Indigo) */
+[data-brand="namaste"] {
+  --color-primary: #EA580C;
+  --color-primary-dark: #C2410C;
+  --color-secondary: #1E3A8A;
+  --color-accent: #FFF7ED;
+}
+
+/* Base Styles */
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-paper text-ink;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Focus styles */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-paper;
+  }
+}
+
+/* Component Styles */
+@layer components {
+  /* Brand-specific button styles */
+  .btn-primary {
+    @apply bg-primary-500 text-white px-6 py-3 rounded-pill font-semibold 
+           hover:bg-primary-700 transition-colors duration-200 
+           focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500;
+  }
+  
+  .btn-secondary {
+    @apply bg-white/10 backdrop-blur-md text-ink border border-border 
+           px-6 py-3 rounded-pill font-semibold 
+           hover:bg-white/20 transition-colors duration-200
+           focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500;
+  }
+  
+  /* Card styles */
+  .card {
+    @apply bg-surface rounded-xl shadow-card border border-border 
+           hover:shadow-cardHover transition-all duration-300 
+           hover:-translate-y-1;
+  }
+  
+  .card-featured {
+    @apply border-2 border-primary-500 bg-primary-50;
+  }
+  
+  /* Text styles */
+  .text-brand-primary {
+    color: var(--color-primary);
+  }
+  
+  .bg-brand-primary {
+    background-color: var(--color-primary);
+  }
+  
+  .border-brand-primary {
+    border-color: var(--color-primary);
+  }
+  
+  /* Gradient backgrounds */
+  .gradient-brand {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  }
+  
+  .gradient-hero {
+    background: linear-gradient(135deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.7) 100%);
+  }
+}
+
+/* Utility Classes */
+@layer utilities {
+  /* Animation utilities */
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out;
+  }
+  
+  .animate-scale-in {
+    animation: scaleIn 0.4s ease-out;
+  }
+  
+  /* Brand theme utilities */
+  .theme-transition {
+    transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+  }
+  
+  /* Custom scrollbar */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary) transparent;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: var(--color-primary);
+    border-radius: 3px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-primary-dark);
+  }
+  
+  /* Glass morphism effect */
+  .glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .glass-dark {
+    background: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Brand-specific customizations */
+[data-brand="konnichiwa"] .text-accent {
+  color: #DC2626;
+}
+
+[data-brand="namaste"] .text-accent {
+  color: #EA580C;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+  
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .card {
+    @apply border-2 border-ink;
+  }
+  
+  .btn-primary {
+    @apply border-2 border-primary-700;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,32 @@
+{
+    "extends": [
+        "next/core-web-vitals"
+    ],
+    "rules": {
+        "@typescript-eslint/no-unused-vars": "warn",
+        "@typescript-eslint/no-explicit-any": "warn",
+        "react-hooks/exhaustive-deps": "warn",
+        "react/display-name": "off",
+        "no-console": [
+            "warn",
+            {
+                "allow": [
+                    "warn",
+                    "error"
+                ]
+            }
+        ],
+        "prefer-const": "error",
+        "no-var": "error"
+    },
+    "overrides": [
+        {
+            "files": [
+                "*.js"
+            ],
+            "rules": {
+                "@typescript-eslint/no-var-requires": "off"
+            }
+        }
+    ]
+}

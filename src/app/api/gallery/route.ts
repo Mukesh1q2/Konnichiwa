@@ -1,0 +1,274 @@
+import { NextRequest, NextResponse } from 'next/server';
+
+// Mock gallery data
+const mockGallery = {
+  konnichiwa: [
+    {
+      id: '1',
+      title: 'Tea Ceremony Workshop',
+      description: 'Traditional Japanese tea ceremony with Master Takahashi',
+      image: '/images/gallery/tea-ceremony-1.jpg',
+      eventId: '1',
+      brand: 'konnichiwa',
+      category: 'Traditional Arts',
+      date: '2024-11-15',
+      featured: true,
+      photographer: 'Cultural Team',
+      tags: ['tea', 'ceremony', 'traditional', 'workshop']
+    },
+    {
+      id: '2',
+      title: 'Calligraphy Session',
+      description: 'Beautiful Japanese calligraphy artwork',
+      image: '/images/gallery/calligraphy-1.jpg',
+      eventId: '3',
+      brand: 'konnichiwa',
+      category: 'Traditional Arts',
+      date: '2024-11-20',
+      featured: false,
+      photographer: 'Cultural Team',
+      tags: ['calligraphy', 'art', 'writing', 'traditional']
+    },
+    {
+      id: '3',
+      title: 'Cherry Blossom Festival',
+      description: 'Annual cherry blossom celebration',
+      image: '/images/gallery/cherry-blossom-1.jpg',
+      eventId: null,
+      brand: 'konnichiwa',
+      category: 'Festival',
+      date: '2024-04-10',
+      featured: true,
+      photographer: 'Event Team',
+      tags: ['festival', 'cherry-blossom', 'spring', 'celebration']
+    },
+    {
+      id: '4',
+      title: 'Kimono Workshop',
+      description: 'Learning the art of wearing traditional kimono',
+      image: '/images/gallery/kimono-1.jpg',
+      eventId: null,
+      brand: 'konnichiwa',
+      category: 'Workshop',
+      date: '2024-10-25',
+      featured: false,
+      photographer: 'Cultural Team',
+      tags: ['kimono', 'traditional', 'clothing', 'workshop']
+    },
+    {
+      id: '5',
+      title: 'Japanese Cooking Class',
+      description: 'Authentic sushi making techniques',
+      image: '/images/gallery/cooking-1.jpg',
+      eventId: null,
+      brand: 'konnichiwa',
+      category: 'Culinary',
+      date: '2024-09-15',
+      featured: false,
+      photographer: 'Culinary Team',
+      tags: ['cooking', 'sushi', 'food', 'culinary']
+    },
+    {
+      id: '6',
+      title: 'Martial Arts Demonstration',
+      description: 'Traditional martial arts showcase',
+      image: '/images/gallery/martial-arts-1.jpg',
+      eventId: null,
+      brand: 'konnichiwa',
+      category: 'Sports',
+      date: '2024-08-20',
+      featured: false,
+      photographer: 'Sports Team',
+      tags: ['martial-arts', 'demonstration', 'traditional', 'sports']
+    }
+  ],
+  namaste: [
+    {
+      id: '7',
+      title: 'Bollywood Dance Performance',
+      description: 'Energetic Bollywood dance showcase',
+      image: '/images/gallery/bollywood-1.jpg',
+      eventId: '2',
+      brand: 'namaste',
+      category: 'Dance',
+      date: '2024-11-18',
+      featured: true,
+      photographer: 'Event Team',
+      tags: ['bollywood', 'dance', 'performance', 'music']
+    },
+    {
+      id: '8',
+      title: 'Classical Music Concert',
+      description: 'Beautiful Indian classical music evening',
+      image: '/images/gallery/classical-1.jpg',
+      eventId: '4',
+      brand: 'namaste',
+      category: 'Music',
+      date: '2024-11-25',
+      featured: true,
+      photographer: 'Music Team',
+      tags: ['classical', 'music', 'concert', 'traditional']
+    },
+    {
+      id: '9',
+      title: 'Holi Celebration',
+      description: 'Colorful Holi festival celebration',
+      image: '/images/gallery/holi-1.jpg',
+      eventId: null,
+      brand: 'namaste',
+      category: 'Festival',
+      date: '2024-03-15',
+      featured: true,
+      photographer: 'Festival Team',
+      tags: ['holi', 'festival', 'colors', 'celebration']
+    },
+    {
+      id: '10',
+      title: 'Yoga Workshop',
+      description: 'Traditional yoga and meditation session',
+      image: '/images/gallery/yoga-1.jpg',
+      eventId: null,
+      brand: 'namaste',
+      category: 'Wellness',
+      date: '2024-10-05',
+      featured: false,
+      photographer: 'Wellness Team',
+      tags: ['yoga', 'meditation', 'wellness', 'traditional']
+    },
+    {
+      id: '11',
+      title: 'Indian Cooking Workshop',
+      description: 'Authentic Indian spice and cooking techniques',
+      image: '/images/gallery/indian-cooking-1.jpg',
+      eventId: null,
+      brand: 'namaste',
+      category: 'Culinary',
+      date: '2024-09-20',
+      featured: false,
+      photographer: 'Culinary Team',
+      tags: ['cooking', 'indian', 'spices', 'culinary']
+    },
+    {
+      id: '12',
+      title: 'Classical Dance Performance',
+      description: 'Bharatanatyam dance recital',
+      image: '/images/gallery/dance-1.jpg',
+      eventId: null,
+      brand: 'namaste',
+      category: 'Dance',
+      date: '2024-08-30',
+      featured: false,
+      photographer: 'Cultural Team',
+      tags: ['bharatanatyam', 'classical', 'dance', 'traditional']
+    }
+  ]
+};
+
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const brand = searchParams.get('brand');
+    const category = searchParams.get('category');
+    const featured = searchParams.get('featured');
+    const eventId = searchParams.get('eventId');
+
+    let allImages = [];
+
+    // Get images from specified brand or all brands
+    if (brand && (brand === 'konnichiwa' || brand === 'namaste')) {
+      allImages = [...mockGallery[brand]];
+    } else {
+      allImages = [...mockGallery.konnichiwa, ...mockGallery.namaste];
+    }
+
+    // Filter by category
+    if (category) {
+      allImages = allImages.filter(image =>
+        image.category.toLowerCase().includes(category.toLowerCase())
+      );
+    }
+
+    // Filter featured images
+    if (featured === 'true') {
+      allImages = allImages.filter(image => image.featured);
+    }
+
+    // Filter by event ID
+    if (eventId) {
+      allImages = allImages.filter(image => image.eventId === eventId);
+    }
+
+    // Sort by date (newest first)
+    allImages.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    return NextResponse.json({
+      success: true,
+      data: allImages,
+      total: allImages.length
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, error: 'Failed to fetch gallery' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const {
+      title,
+      description,
+      image,
+      brand,
+      category,
+      eventId,
+      tags
+    } = body;
+
+    // Validate required fields
+    if (!title || !image || !brand) {
+      return NextResponse.json(
+        { success: false, error: 'Title, image, and brand are required' },
+        { status: 400 }
+      );
+    }
+
+    // Validate brand
+    if (!['konnichiwa', 'namaste'].includes(brand)) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid brand' },
+        { status: 400 }
+      );
+    }
+
+    const newImage = {
+      id: Date.now().toString(),
+      title: title.trim(),
+      description: description?.trim() || '',
+      image,
+      brand,
+      category: category || 'General',
+      eventId: eventId || null,
+      date: new Date().toISOString().split('T')[0],
+      featured: false,
+      photographer: 'Cultural Team',
+      tags: tags || []
+    };
+
+    // Add to appropriate brand gallery
+    (mockGallery as any)[brand].push(newImage);
+
+    return NextResponse.json({
+      success: true,
+      data: newImage,
+      message: 'Image added to gallery successfully'
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, error: 'Failed to add image to gallery' },
+      { status: 500 }
+    );
+  }
+}

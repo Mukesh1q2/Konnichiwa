@@ -1,0 +1,485 @@
+'use client';
+
+import { motion } from 'framer-motion';
+import { useBrand } from '@/lib/brand-context';
+import {
+  HelpingHand,
+  Heart,
+  Star,
+  Award,
+  Users,
+  Target,
+  TrendingUp,
+  Globe,
+  Building,
+  Sparkles
+} from 'lucide-react';
+
+const Sponsors = () => {
+  const { brand } = useBrand();
+
+  const brandConfig = {
+    konnichiwa: {
+      name: 'Konnichiwa Japan',
+      country: 'Japan',
+      primaryColor: 'from-red-600 to-red-800',
+      secondaryColor: 'from-gray-100 to-gray-200',
+      accentColor: 'text-red-700',
+      bgImage: '/images/japan-sponsors-bg.jpg',
+      title: 'Our Valued Partners',
+      subtitle: 'Together, we celebrate the beauty of Japanese culture'
+    },
+    namaste: {
+      name: 'Namaste India',
+      country: 'India',
+      primaryColor: 'from-orange-500 to-orange-700',
+      secondaryColor: 'from-yellow-50 to-orange-50',
+      accentColor: 'text-orange-700',
+      bgImage: '/images/india-sponsors-bg.jpg',
+      title: 'Our Esteemed Sponsors',
+      subtitle: 'Partnering to share the vibrancy of Indian culture'
+    }
+  };
+
+  const config = brandConfig[brand];
+
+  const sponsorshipTiers = [
+    {
+      name: 'Platinum Partner',
+      icon: Award,
+      color: 'from-yellow-400 to-yellow-600',
+      benefits: [
+        'Logo on all marketing materials',
+        'Speaking opportunity at events',
+        'Premium booth space',
+        'VIP event access',
+        'Year-round brand exposure',
+        'Custom partnership packages'
+      ],
+      price: '₹5,00,000+',
+      description: 'The highest level of partnership with maximum visibility and engagement opportunities.'
+    },
+    {
+      name: 'Gold Partner',
+      icon: Star,
+      color: 'from-yellow-300 to-yellow-500',
+      benefits: [
+        'Logo on website and social media',
+        'Featured in event programs',
+        'Standard booth space',
+        'Event tickets',
+        'Quarterly brand mentions',
+        'Cross-promotion opportunities'
+      ],
+      price: '₹2,50,000+',
+      description: 'Significant brand exposure with meaningful engagement at our cultural events.'
+    },
+    {
+      name: 'Silver Partner',
+      icon: TrendingUp,
+      color: 'from-gray-300 to-gray-500',
+      benefits: [
+        'Logo on website',
+        'Program mention',
+        'Small booth space',
+        'Event access',
+        'Social media mentions',
+        'Networking opportunities'
+      ],
+      price: '₹1,00,000+',
+      description: 'Essential partnership level for organizations supporting cultural exchange.'
+    },
+    {
+      name: 'Community Supporter',
+      icon: Heart,
+      color: 'from-pink-400 to-pink-600',
+      benefits: [
+        'Website recognition',
+        'Event listing',
+        'Volunteer opportunities',
+        'Community access',
+        'Newsletter inclusion',
+        'Social media support'
+      ],
+      price: '₹25,000+',
+      description: 'Perfect for local businesses and organizations committed to community building.'
+    }
+  ];
+
+  const currentSponsors = {
+    konnichiwa: [
+      {
+        name: 'Toyota India',
+        logo: '/images/sponsors/toyota-logo.png',
+        tier: 'Platinum',
+        description: 'Leading automotive company supporting cultural exchange'
+      },
+      {
+        name: 'Japan Foundation',
+        logo: '/images/sponsors/japan-foundation.png',
+        tier: 'Gold',
+        description: 'Official cultural organization promoting Japanese culture'
+      },
+      {
+        name: 'JICA India',
+        logo: '/images/sponsors/jica-logo.png',
+        tier: 'Gold',
+        description: 'Japan International Cooperation Agency'
+      },
+      {
+        name: 'Sony India',
+        logo: '/images/sponsors/sony-logo.png',
+        tier: 'Silver',
+        description: 'Consumer electronics and entertainment company'
+      },
+      {
+        name: 'Canon India',
+        logo: '/images/sponsors/canon-logo.png',
+        tier: 'Silver',
+        description: 'Imaging and optical products leader'
+      },
+      {
+        name: 'Uniqlo India',
+        logo: '/images/sponsors/uniqlo-logo.png',
+        tier: 'Silver',
+        description: 'Japanese clothing retailer'
+      }
+    ],
+    namaste: [
+      {
+        name: 'Tata Group',
+        logo: '/images/sponsors/tata-logo.png',
+        tier: 'Platinum',
+        description: 'India\'s largest conglomerate supporting cultural initiatives'
+      },
+      {
+        name: 'Embassy of India',
+        logo: '/images/sponsors/india-embassy.png',
+        tier: 'Gold',
+        description: 'Official diplomatic mission in Japan'
+      },
+      {
+        name: 'ICICI Bank',
+        logo: '/images/sponsors/icici-logo.png',
+        tier: 'Gold',
+        description: 'Leading financial services institution'
+      },
+      {
+        name: 'Infosys',
+        logo: '/images/sponsors/infosys-logo.png',
+        tier: 'Silver',
+        description: 'Global technology consulting company'
+      },
+      {
+        name: 'Mahindra & Mahindra',
+        logo: '/images/sponsors/mahindra-logo.png',
+        tier: 'Silver',
+        description: 'Automotive and agribusiness company'
+      },
+      {
+        name: 'Ajinomoto Japan',
+        logo: '/images/sponsors/ajinomoto-logo.png',
+        tier: 'Silver',
+        description: 'Food and biotechnology company'
+      }
+    ]
+  };
+
+  const sponsors = currentSponsors[brand];
+
+  const whySponsor = [
+    {
+      icon: Users,
+      title: 'Community Engagement',
+      description: 'Connect with over 50,000 cultural enthusiasts and community members across India and Japan.'
+    },
+    {
+      icon: Globe,
+      title: 'Cross-Cultural Impact',
+      description: 'Be part of initiatives that build bridges between two rich cultures and foster understanding.'
+    },
+    {
+      icon: TrendingUp,
+      title: 'Brand Visibility',
+      description: 'Gain exposure through multiple channels including events, digital platforms, and media coverage.'
+    },
+    {
+      icon: Target,
+      title: 'Target Audience',
+      description: 'Reach a highly engaged audience interested in culture, education, and cross-cultural experiences.'
+    }
+  ];
+
+  const handleBecomeSponsor = () => {
+    window.location.href = '/contact?subject=Partnership Inquiry';
+  };
+
+  return (
+    <div className={`min-h-screen bg-gradient-to-br ${config.secondaryColor}`}>
+      {/* Hero Section */}
+      <section className="relative py-20 overflow-hidden">
+        <div className="absolute inset-0">
+          <img
+            src={config.bgImage}
+            alt="Sponsors background"
+            className="w-full h-full object-cover opacity-20"
+          />
+          <div className={`absolute inset-0 bg-gradient-to-r ${config.primaryColor} opacity-85`}></div>
+        </div>
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+              {config.title}
+            </h1>
+            <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-3xl mx-auto">
+              {config.subtitle}
+            </p>
+            <div className="inline-flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-full px-6 py-3">
+              <HelpingHand className="h-5 w-5 text-white" />
+              <span className="text-white font-medium">Building Cultural Bridges Since 2017</span>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Current Sponsors */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+              Our Current Partners
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              We are grateful to work with these amazing organizations who share our vision of cultural exchange and community building.
+            </p>
+          </motion.div>
+
+          {/* Platinum Sponsors */}
+          <div className="mb-12">
+            <h3 className="text-2xl font-bold text-gray-900 mb-8 flex items-center">
+              <Award className="h-6 w-6 mr-3 text-yellow-600" />
+              Platinum Partners
+            </h3>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {sponsors.filter(sponsor => sponsor.tier === 'Platinum').map((sponsor, index) => (
+                <motion.div
+                  key={sponsor.name}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 text-center border-2 border-yellow-200"
+                >
+                  <div className="w-24 h-24 mx-auto mb-4 bg-white rounded-lg flex items-center justify-center shadow-md">
+                    <Building className="h-12 w-12 text-yellow-600" />
+                  </div>
+                  <h4 className="text-lg font-bold text-gray-900 mb-2">{sponsor.name}</h4>
+                  <p className="text-gray-600 text-sm">{sponsor.description}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Gold Sponsors */}
+          <div className="mb-12">
+            <h3 className="text-2xl font-bold text-gray-900 mb-8 flex items-center">
+              <Star className="h-6 w-6 mr-3 text-yellow-500" />
+              Gold Partners
+            </h3>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {sponsors.filter(sponsor => sponsor.tier === 'Gold').map((sponsor, index) => (
+                <motion.div
+                  key={sponsor.name}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  className="bg-white rounded-xl p-6 text-center border border-gray-200 hover:shadow-lg transition-shadow duration-300"
+                >
+                  <div className="w-20 h-20 mx-auto mb-4 bg-gray-50 rounded-lg flex items-center justify-center">
+                    <Building className="h-10 w-10 text-gray-600" />
+                  </div>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">{sponsor.name}</h4>
+                  <p className="text-gray-600 text-sm">{sponsor.description}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Silver Sponsors */}
+          <div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-8 flex items-center">
+              <TrendingUp className="h-6 w-6 mr-3 text-gray-500" />
+              Silver Partners
+            </h3>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {sponsors.filter(sponsor => sponsor.tier === 'Silver').map((sponsor, index) => (
+                <motion.div
+                  key={sponsor.name}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  className="bg-gray-50 rounded-lg p-4 text-center hover:bg-gray-100 transition-colors duration-300"
+                >
+                  <div className="w-16 h-16 mx-auto mb-3 bg-white rounded-lg flex items-center justify-center shadow-sm">
+                    <Building className="h-8 w-8 text-gray-500" />
+                  </div>
+                  <h4 className="text-sm font-semibold text-gray-900 mb-1">{sponsor.name}</h4>
+                  <p className="text-gray-600 text-xs">{sponsor.description}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Why Sponsor Section */}
+      <section className={`py-20 bg-gradient-to-r ${config.primaryColor}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+              Why Partner With Us?
+            </h2>
+            <p className="text-xl text-white/90 max-w-3xl mx-auto">
+              Join us in creating meaningful cultural experiences that bring communities together
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {whySponsor.map((reason, index) => (
+              <motion.div
+                key={reason.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="text-center"
+              >
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm text-white mb-6">
+                  <reason.icon className="h-8 w-8" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-4">{reason.title}</h3>
+                <p className="text-white/90">{reason.description}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Sponsorship Tiers */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+              Partnership Opportunities
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Choose the partnership level that best fits your organization's goals and budget
+            </p>
+          </motion.div>
+
+          <div className="grid lg:grid-cols-2 gap-8">
+            {sponsorshipTiers.map((tier, index) => (
+              <motion.div
+                key={tier.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="bg-white rounded-2xl shadow-xl p-8 border border-gray-200"
+              >
+                <div className="flex items-center mb-6">
+                  <div className={`inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-r ${tier.color} text-white mr-4`}>
+                    <tier.icon className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900">{tier.name}</h3>
+                    <p className={`text-lg font-semibold ${config.accentColor}`}>{tier.price}</p>
+                  </div>
+                </div>
+
+                <p className="text-gray-600 mb-6">{tier.description}</p>
+
+                <div className="space-y-3 mb-8">
+                  {tier.benefits.map((benefit, benefitIndex) => (
+                    <div key={benefitIndex} className="flex items-center">
+                      <Sparkles className={`h-5 w-5 mr-3 ${config.accentColor}`} />
+                      <span className="text-gray-700">{benefit}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  onClick={handleBecomeSponsor}
+                  className={`w-full inline-flex items-center justify-center px-6 py-4 rounded-lg bg-gradient-to-r ${config.primaryColor} text-white font-semibold hover:opacity-90 transition-opacity duration-300`}
+                >
+                  Learn More
+                </button>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-gray-900">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+              Ready to Partner With Us?
+            </h2>
+            <p className="text-xl text-gray-300 mb-8">
+              Join our mission to celebrate and share the beauty of cross-cultural understanding.
+              Let's create meaningful experiences together.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button
+                onClick={handleBecomeSponsor}
+                className={`inline-flex items-center justify-center px-8 py-4 rounded-lg bg-gradient-to-r ${config.primaryColor} text-white font-semibold hover:opacity-90 transition-opacity duration-300`}
+              >
+                Become a Partner
+              </button>
+              <a
+                href="/contact"
+                className="inline-flex items-center justify-center px-8 py-4 rounded-lg border-2 border-white text-white font-semibold hover:bg-white hover:text-gray-900 transition-colors duration-300"
+              >
+                Contact Us
+              </a>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default Sponsors;

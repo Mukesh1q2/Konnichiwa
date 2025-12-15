@@ -1,0 +1,76 @@
+
+> konnichiwa-namaste-website@1.0.0 build:node18
+> node scripts/build-node18.js
+
+🏗️  Starting Node.js 18 compatible production build...
+✅ Node.js v24.5.0 detected
+(node:34184) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+   ▲ Next.js 14.0.4
+   - Environments: .env
+
+   Creating an optimized production build ...
+<w> [webpack.cache.PackFileCacheStrategy] Skipped not serializable cache item 'Compilation/modules|C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\node_modules\next\dist\build\webpack\loaders\css-loader\src\index.js??ruleSet[1].rules[11].oneOf[12].use[2]!C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\node_modules\next\dist\build\webpack\loaders\postcss-loader\src\index.js??ruleSet[1].rules[11].oneOf[12].use[3]!C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\src\app\globals.css': No serializer registered for PostCSSSyntaxError
+<w> while serializing webpack/lib/cache/PackFileCacheStrategy.PackContentItems -> webpack/lib/NormalModule -> webpack/lib/ModuleBuildError -> PostCSSSyntaxError
+Failed to compile.
+
+./src/app/globals.css:86:5
+Syntax error: C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\src\app\globals.css The `bg-primary-50` class does not exist. If `bg-primary-50` is a custom class, make sure it is defined within a `@layer` directive.
+
+ [90m 84 | [39m  
+ [90m 85 | [39m  [33m.card-featured[39m [33m{[39m
+[1m[31m>[39m[22m[90m 86 | [39m    [36m@apply[39m border-2 border-primary-500 bg-primary-50[33m;[39m
+ [90m    | [39m    [1m[31m^[39m[22m
+ [90m 87 | [39m  [33m}[39m
+ [90m 88 | [39m
+
+./src/app/globals.css
+Syntax error: C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\src\app\globals.css The `bg-primary-50` class does not exist. If `bg-primary-50` is a custom class, make sure it is defined within a `@layer` directive. (86:5)
+
+ [90m 84 | [39m  
+ [90m 85 | [39m  [33m.card-featured[39m [33m{[39m
+[1m[31m>[39m[22m[90m 86 | [39m    [36m@apply[39m border-2 border-primary-500 bg-primary-50[33m;[39m
+ [90m    | [39m    [1m[31m^[39m[22m
+ [90m 87 | [39m  [33m}[39m
+ [90m 88 | [39m  
+
+    at tryRunOrWebpackError (C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\node_modules\next\dist\compiled\webpack\bundle5.js:28:311563)
+    at __webpack_require_module__ (C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\node_modules\next\dist\compiled\webpack\bundle5.js:28:131195)
+    at __nested_webpack_require_153754__ (C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\node_modules\next\dist\compiled\webpack\bundle5.js:28:130634)
+    at C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\node_modules\next\dist\compiled\webpack\bundle5.js:28:131487
+    at symbolIterator (C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\node_modules\next\dist\compiled\neo-async\async.js:1:14444)
+    at done (C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\node_modules\next\dist\compiled\neo-async\async.js:1:14824)
+    at Hook.eval [as callAsync] (eval at create (C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\node_modules\next\dist\compiled\webpack\bundle5.js:13:28867), <anonymous>:15:1)
+    at Hook.CALL_ASYNC_DELEGATE [as _callAsync] (C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\node_modules\next\dist\compiled\webpack\bundle5.js:13:26021)
+    at C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\node_modules\next\dist\compiled\webpack\bundle5.js:28:130354
+    at symbolIterator (C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\node_modules\next\dist\compiled\neo-async\async.js:1:14402)
+-- inner error --
+Syntax error: C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\src\app\globals.css The `bg-primary-50` class does not exist. If `bg-primary-50` is a custom class, make sure it is defined within a `@layer` directive. (86:5)
+
+ [90m 84 | [39m  
+ [90m 85 | [39m  [33m.card-featured[39m [33m{[39m
+[1m[31m>[39m[22m[90m 86 | [39m    [36m@apply[39m border-2 border-primary-500 bg-primary-50[33m;[39m
+ [90m    | [39m    [1m[31m^[39m[22m
+ [90m 87 | [39m  [33m}[39m
+ [90m 88 | [39m  
+
+    at Object.<anonymous> (C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\node_modules\next\dist\build\webpack\loaders\css-loader\src\index.js??ruleSet[1].rules[11].oneOf[12].use[2]!C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\node_modules\next\dist\build\webpack\loaders\postcss-loader\src\index.js??ruleSet[1].rules[11].oneOf[12].use[3]!C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\src\app\globals.css:1:7)
+    at C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\node_modules\next\dist\compiled\webpack\bundle5.js:28:915116
+    at Hook.eval [as call] (eval at create (C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\node_modules\next\dist\compiled\webpack\bundle5.js:13:28645), <anonymous>:7:1)
+    at Hook.CALL_DELEGATE [as _call] (C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\node_modules\next\dist\compiled\webpack\bundle5.js:13:25915)
+    at C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\node_modules\next\dist\compiled\webpack\bundle5.js:28:131228
+    at tryRunOrWebpackError (C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\node_modules\next\dist\compiled\webpack\bundle5.js:28:311517)
+    at __webpack_require_module__ (C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\node_modules\next\dist\compiled\webpack\bundle5.js:28:131195)
+    at __nested_webpack_require_153754__ (C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\node_modules\next\dist\compiled\webpack\bundle5.js:28:130634)
+    at C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\node_modules\next\dist\compiled\webpack\bundle5.js:28:131487
+    at symbolIterator (C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\node_modules\next\dist\compiled\neo-async\async.js:1:14444)
+
+Generated code for C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\node_modules\next\dist\build\webpack\loaders\css-loader\src\index.js??ruleSet[1].rules[11].oneOf[12].use[2]!C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\node_modules\next\dist\build\webpack\loaders\postcss-loader\src\index.js??ruleSet[1].rules[11].oneOf[12].use[3]!C:\Users\crypt\Downloads\Ai projects\websites\Konnichiwa Japan\konnichiwa-namaste-website\src\app\globals.css
+
+Import trace for requested module:
+./src/app/globals.css
+
+
+> Build failed because of webpack errors
+❌ Build failed with code 1
+🔍 Check the logs above for details
