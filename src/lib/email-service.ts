@@ -11,8 +11,8 @@ const emailConfig = {
     fromName: process.env.SENDGRID_FROM_NAME || 'Konnichiwa Namaste Cultural Festival'
   },
   resend: {
-    apiKey: process.env.RESEND_API_KEY!,
-    fromEmail: process.env.RESEND_FROM_EMAIL!,
+    apiKey: process.env.RESEND_API_KEY || '',
+    fromEmail: process.env.RESEND_FROM_EMAIL || 'noreply@example.com',
     fromName: process.env.RESEND_FROM_NAME || 'Konnichiwa Namaste Cultural Festival'
   },
   smtp: {
@@ -29,7 +29,14 @@ const emailConfig = {
 // Initialize email providers
 sgMail.setApiKey(emailConfig.sendgrid.apiKey);
 
-const resend = new Resend(emailConfig.resend.apiKey);
+// Lazy initialize Resend only if API key is available
+let resendClient: Resend | null = null;
+const getResendClient = () => {
+  if (!resendClient && emailConfig.resend.apiKey) {
+    resendClient = new Resend(emailConfig.resend.apiKey);
+  }
+  return resendClient;
+};
 
 const smtpTransporter = nodemailer.createTransporter(emailConfig.smtp);
 
@@ -152,7 +159,11 @@ export class EmailService {
   // Resend implementation
   private static async sendWithResend(emailData: EmailData): Promise<{ success: boolean; error?: string }> {
     try {
-      const result = await resend.emails.send({
+      const client = getResendClient();
+      if (!client) {
+        return { success: false, error: 'Resend API key not configured' };
+      }
+      const result = await client.emails.send({
         to: emailData.to,
         from: emailData.from || emailConfig.resend.fromEmail,
         subject: emailData.subject,
