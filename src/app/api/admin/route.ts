@@ -90,10 +90,10 @@ async function getDashboardStats() {
     // Get tickets data
     const tickets = await DatabaseService.getTickets();
     const totalTickets = tickets.length;
-    const confirmedTickets = tickets.filter(t => t.status === 'confirmed').length;
+    const confirmedTickets = tickets.filter((t: any) => t.status === 'confirmed').length;
     const totalRevenue = tickets
-      .filter(t => t.status === 'confirmed')
-      .reduce((sum, t) => sum + t.total_price, 0);
+      .filter((t: any) => t.status === 'confirmed')
+      .reduce((sum: number, t: any) => sum + t.total_price, 0);
 
     // Get user statistics (mock data for now)
     const totalUsers = 1247;
@@ -105,7 +105,7 @@ async function getDashboardStats() {
 
     // Get contact submissions
     const contacts = await DatabaseService.getContacts();
-    const pendingContacts = contacts.filter(c => c.status === 'new').length;
+    const pendingContacts = contacts.filter((c: any) => c.status === 'new').length;
 
     // Get gallery images count
     const galleryImages = await DatabaseService.getGalleryImages();
