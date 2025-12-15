@@ -3,6 +3,10 @@ import { DatabaseService } from '@/lib/database';
 import { AuthService } from '@/lib/auth-service';
 import { EmailService } from '@/lib/email-service';
 
+// Force dynamic rendering to prevent build-time execution
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 // Admin API middleware
 async function verifyAdminAccess(request: NextRequest): Promise<{ success: boolean; user?: any; error?: string }> {
   try {

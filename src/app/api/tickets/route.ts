@@ -3,6 +3,9 @@ import { DatabaseService } from '@/lib/database';
 import { PaymentService } from '@/lib/payment-service-fixed';
 import { AuthService } from '@/lib/auth-service';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
