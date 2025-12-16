@@ -1,9 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PaymentService } from '@/lib/payment-service-fixed';
-import { DatabaseService } from '@/lib/database';
-import { EmailService } from '@/lib/email-service';
+
+// Force dynamic rendering to prevent build-time execution
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
+// Lazy load dependencies to prevent build-time execution
+let PaymentService: any;
+let DatabaseService: any;
+let EmailService: any;
+
+// Initialize services only at runtime
+async function initServices() {
+  if (!PaymentService) {
+    PaymentService = (await import('@/lib/payment-service-fixed')).PaymentService;
+    DatabaseService = (await import('@/lib/database')).DatabaseService;
+    EmailService = (await import('@/lib/email-service')).EmailService;
+  }
+}
 
 export async function POST(request: NextRequest) {
+  await initServices();
   try {
     const url = new URL(request.url);
     const provider = url.searchParams.get('provider') || 'razorpay';
