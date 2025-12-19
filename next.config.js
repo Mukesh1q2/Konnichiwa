@@ -10,6 +10,7 @@ const nextConfig = {
     domains: ['images.unsplash.com', 'via.placeholder.com'],
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60 * 60 * 24 * 365, // 1 year
+    unoptimized: true,
   },
   async headers() {
     return [
@@ -87,8 +88,6 @@ const nextConfig = {
   compress: true,
   // Disable powered by header
   poweredByHeader: false,
-  // Generate static pages
-  output: 'standalone',
 };
 
 module.exports = nextConfig;

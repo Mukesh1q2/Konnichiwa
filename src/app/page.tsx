@@ -83,12 +83,12 @@ export default function HomePage() {
 
   const shareContent = {
     title: `Join ${currentBrand === 'konnichiwa' ? 'Konnichiwa Japan' : 'Namaste India'} Cultural Festival`,
-    text: currentBrand === 'konnichiwa' 
+    text: currentBrand === 'konnichiwa'
       ? 'Experience authentic Japanese culture in India! 🇯🇵 Sumo wrestling, anime, traditional arts & more!'
       : 'Celebrate vibrant Indian culture in Japan! 🇮🇳 Classical dance, Bollywood, yoga & cultural exchange!',
     url: typeof window !== 'undefined' ? window.location.href : '',
     image: currentBrand === 'konnichiwa' ? '/images/konnichiwa_japan_event_images_5.jpg' : '/images/indian_cultural_elements_3.jpeg',
-    hashtags: currentBrand === 'konnichiwa' 
+    hashtags: currentBrand === 'konnichiwa'
       ? ['#KonnichiwaJapan', '#JapaneseCulture', '#CulturalFestival', '#IndiaJapan']
       : ['#NamasteIndia', '#IndianCulture', '#CulturalFestival', '#JapanIndia']
   };
@@ -106,7 +106,7 @@ export default function HomePage() {
               About {currentBrand === 'konnichiwa' ? 'Konnichiwa Japan' : 'Namaste India'}
             </h2>
             <p className="text-bodyLarge text-slate max-w-3xl mx-auto leading-relaxed">
-              {currentBrand === 'konnichiwa' 
+              {currentBrand === 'konnichiwa'
                 ? 'India\'s largest Japanese cultural festival, bringing traditional arts, modern pop culture, cuisine, performances, workshops, and community experiences to thousands of visitors every year. Since 2017, the festival has connected India and Japan through creativity, friendship, and cultural exchange.'
                 : 'Japan\'s largest Indian cultural festival, celebrating India\'s diversity through dance, music, food, wellness, crafts, workshops, and community gatherings. The event strengthens Indo-Japanese friendship through meaningful cultural exchange.'
               }
@@ -176,7 +176,7 @@ export default function HomePage() {
                   <div className="flex items-center text-slate text-sm mb-4 space-x-4">
                     <div className="flex items-center">
                       <Calendar className="h-4 w-4 mr-1" />
-                      <span>{new Date(event.date).toLocaleDateString()}</span>
+                      <span>{new Date(event.date).toLocaleDateString('en-GB')}</span>
                     </div>
                     <div className="flex items-center">
                       <MapPin className="h-4 w-4 mr-1" />
@@ -405,7 +405,7 @@ export default function HomePage() {
                 exit={{ opacity: 0, height: 0 }}
                 className="mt-12 bg-white rounded-2xl shadow-xl p-8"
               >
-                <SocialShareManager 
+                <SocialShareManager
                   content={shareContent}
                   variant="default"
                   showQR={true}
@@ -452,7 +452,7 @@ export default function HomePage() {
 
       {/* Modern Interactive Elements */}
       <AutoShowMascot />
-      <RealTimeChat 
+      <RealTimeChat
         variant="floating"
         showRooms={true}
         showUserList={true}

@@ -40,7 +40,7 @@ export const BRAND_CONFIGS: Record<Brand, BrandConfig> = {
     images: {
       hero: '/images/konnichiwa_japan_event_images_0.jpg',
       logo: '/images/logos/konnichiwa-logo.svg',
-      favicon: '/images/logos/konnichiwa-favicon.ico',
+      favicon: '/images/logos/konnichiwa-favicon.svg',
     },
     locale: {
       default: 'en',
@@ -65,7 +65,7 @@ export const BRAND_CONFIGS: Record<Brand, BrandConfig> = {
     images: {
       hero: '/images/namaste_india_event_images_1.webp',
       logo: '/images/logos/namaste-logo.svg',
-      favicon: '/images/logos/namaste-favicon.ico',
+      favicon: '/images/logos/namaste-favicon.svg',
     },
     locale: {
       default: 'en',
@@ -103,7 +103,7 @@ export interface Event {
   ageRestriction?: string;
 }
 
-export type EventCategory = 
+export type EventCategory =
   | 'sumo'
   | 'cosplay'
   | 'taiko'

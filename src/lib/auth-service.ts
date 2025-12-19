@@ -7,8 +7,8 @@ import { DatabaseService } from './database';
 
 // Supabase client for auth
 const supabaseAuth = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key',
   {
     auth: {
       autoRefreshToken: true,
@@ -120,13 +120,13 @@ export class AuthService {
           email_verified: authData.user.email_confirmed_at ? true : false
         };
 
-        // Save to database (with error handling for missing DB)
+        // Save to database
         try {
           if (typeof window !== 'undefined') {
             await DatabaseService.createUser(userProfile);
           }
         } catch (error) {
-          // Continue with user registration even if DB fails
+          // Continue
         }
 
         return {
@@ -160,17 +160,16 @@ export class AuthService {
       }
 
       if (data.user && data.session) {
-        // Get user profile from database (with error handling)
+        // Get user profile from database
         let userProfile;
         try {
           if (typeof window !== 'undefined') {
             userProfile = await DatabaseService.getUserById(data.user.id);
           }
         } catch (error) {
-          userProfile = data.user; // Fallback to auth user
+          userProfile = data.user;
         }
 
-        // Create session with enhanced security
         const session = this.createSecureSession(data.session);
 
         return {
@@ -190,85 +189,19 @@ export class AuthService {
   static async logout(): Promise<{ success: boolean; error?: string }> {
     try {
       const { error } = await supabaseAuth.auth.signOut();
+      if (error) return { success: false, error: error.message };
 
-      if (error) {
-        return { success: false, error: error.message };
-      }
-
-      // Clear client-side session storage
       if (typeof window !== 'undefined') {
         localStorage.removeItem('auth_session');
         sessionStorage.removeItem('auth_session');
       }
-
       return { success: true };
     } catch (error) {
       return { success: false, error: 'Logout failed' };
     }
   }
 
-  // Password Reset
-  static async requestPasswordReset(data: PasswordResetData): Promise<{
-    success: boolean;
-    error?: string;
-  }> {
-    try {
-      const { error } = await supabaseAuth.auth.resetPasswordForEmail(data.email, {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/reset-password`
-      });
-
-      if (error) {
-        return { success: false, error: error.message };
-      }
-
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: 'Password reset failed' };
-    }
-  }
-
-  // Update Password
-  static async updatePassword(data: PasswordUpdateData): Promise<{
-    success: boolean;
-    error?: string;
-  }> {
-    try {
-      const { error } = await supabaseAuth.auth.updateUser({
-        password: data.new_password
-      });
-
-      if (error) {
-        return { success: false, error: error.message };
-      }
-
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: 'Password update failed' };
-    }
-  }
-
-  // Email Verification
-  static async verifyEmail(token: string): Promise<{
-    success: boolean;
-    error?: string;
-  }> {
-    try {
-      const { error } = await supabaseAuth.auth.verifyOtp({
-        token_hash: token,
-        type: 'email'
-      });
-
-      if (error) {
-        return { success: false, error: error.message };
-      }
-
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: 'Email verification failed' };
-    }
-  }
-
-  // Get Current Session
+  // Current User/Session Helpers
   static async getCurrentSession(): Promise<{
     success: boolean;
     session?: AuthSession;
@@ -277,17 +210,11 @@ export class AuthService {
   }> {
     try {
       const { data, error } = await supabaseAuth.auth.getSession();
-
-      if (error) {
-        return { success: false, error: error.message };
-      }
+      if (error) return { success: false, error: error.message };
 
       if (data.session) {
-        // Check if session is still valid
         const isValid = this.validateSession(data.session as unknown as AuthSession);
-        if (!isValid) {
-          return { success: false, error: 'Session expired' };
-        }
+        if (!isValid) return { success: false, error: 'Session expired' };
 
         return {
           success: true,
@@ -295,14 +222,12 @@ export class AuthService {
           user: data.session.user as unknown as AuthUser
         };
       }
-
       return { success: false, error: 'No active session' };
     } catch (error) {
       return { success: false, error: 'Failed to get session' };
     }
   }
 
-  // Refresh Session
   static async refreshSession(): Promise<{
     success: boolean;
     session?: AuthSession;
@@ -310,131 +235,29 @@ export class AuthService {
   }> {
     try {
       const { data, error } = await supabaseAuth.auth.refreshSession();
-
-      if (error) {
-        return { success: false, error: error.message };
-      }
-
+      if (error) return { success: false, error: error.message };
       if (data.session) {
         return {
           success: true,
           session: this.createSecureSession(data.session)
         };
       }
-
       return { success: false, error: 'Session refresh failed' };
     } catch (error) {
       return { success: false, error: 'Session refresh failed' };
     }
   }
 
-  // Update User Profile
-  static async updateProfile(updates: Partial<AuthUser>): Promise<{
-    success: boolean;
-    user?: AuthUser;
-    error?: string;
-  }> {
+  static async getCurrentUser(): Promise<AuthUser | null> {
     try {
-      const { data, error } = await supabaseAuth.auth.updateUser({
-        data: updates
-      });
-
-      if (error) {
-        return { success: false, error: error.message };
-      }
-
-      if (data.user) {
-        // Update in database
-        // await DatabaseService.updateUser(data.user.id, updates);
-
-        return {
-          success: true,
-          user: data.user as unknown as AuthUser
-        };
-      }
-
-      return { success: false, error: 'Profile update failed' };
-    } catch (error) {
-      return { success: false, error: 'Profile update failed' };
+      const { data: { user } } = await supabaseAuth.auth.getUser();
+      return user as unknown as AuthUser;
+    } catch {
+      return null;
     }
   }
 
-  // Two-Factor Authentication
-  static async enableTwoFactor(): Promise<{
-    success: boolean;
-    secret?: string;
-    qr_code?: string;
-    error?: string;
-  }> {
-    try {
-      // Generate TOTP secret
-      const secret = crypto.randomBytes(20).toString('hex');
-
-      // Generate QR code URL for authenticator apps
-      const qr_code = `otpauth://totp/CulturalFestival:${(await this.getCurrentUser())?.email}?secret=${secret}&issuer=Konnichiwa%20Namaste`;
-
-      // Store secret securely (in production, encrypt this)
-      // await this.storeTwoFactorSecret(secret);
-
-      return {
-        success: true,
-        secret,
-        qr_code
-      };
-    } catch (error) {
-      return { success: false, error: 'Two-factor setup failed' };
-    }
-  }
-
-  // Verify Two-Factor Token
-  static async verifyTwoFactor(token: string, secret: string): Promise<{
-    success: boolean;
-    error?: string;
-  }> {
-    try {
-      // Implement TOTP verification
-      // This is a simplified version - in production, use a proper TOTP library
-      const isValid = this.verifyTotp(token, secret);
-
-      if (!isValid) {
-        return { success: false, error: 'Invalid two-factor token' };
-      }
-
-      // Enable two-factor for user
-      // await this.enableTwoFactorForUser(this.getCurrentUser()!.id, secret);
-
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: 'Two-factor verification failed' };
-    }
-  }
-
-  // Social Authentication
-  static async signInWithProvider(provider: 'google' | 'facebook' | 'github'): Promise<{
-    success: boolean;
-    user?: AuthUser;
-    session?: AuthSession;
-    error?: string;
-  }> {
-    try {
-      const { data, error } = await supabaseAuth.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
-        }
-      });
-
-      if (error) {
-        return { success: false, error: error.message };
-      }
-
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: 'Social authentication failed' };
-    }
-  }
-
-  // Security helpers
+  // Security Helpers
   static createSecureSession(session: any): AuthSession {
     return {
       access_token: session.access_token,
@@ -454,54 +277,7 @@ export class AuthService {
     }
   }
 
-  static async getCurrentUser(): Promise<AuthUser | null> {
-    try {
-      const { data: { user } } = await supabaseAuth.auth.getUser();
-      return user as unknown as AuthUser;
-    } catch {
-      return null;
-    }
-  }
-
-  // Input sanitization
-  static sanitizeInput(input: string): string {
-    return input.trim().replace(/[<>]/g, '');
-  }
-
-  // Enhanced password validation
-  static validatePassword(password: string): { isValid: boolean; errors: string[] } {
-    const errors = [];
-
-    if (password.length < 8) {
-      errors.push('Password must be at least 8 characters long');
-    }
-
-    if (!/[A-Z]/.test(password)) {
-      errors.push('Password must contain at least one uppercase letter');
-    }
-
-    if (!/[a-z]/.test(password)) {
-      errors.push('Password must contain at least one lowercase letter');
-    }
-
-    if (!/\d/.test(password)) {
-      errors.push('Password must contain at least one number');
-    }
-
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-      errors.push('Password must contain at least one special character');
-    }
-
-    return {
-      isValid: errors.length === 0,
-      errors
-    };
-  }
-
-  static generateSecureToken(): string {
-    return crypto.randomBytes(32).toString('hex');
-  }
-
+  // Password Helpers
   static hashPassword(password: string): Promise<string> {
     return bcrypt.hash(password, 12);
   }
@@ -510,61 +286,10 @@ export class AuthService {
     return bcrypt.compare(password, hash);
   }
 
-  // Rate limiting
-  static async checkRateLimit(identifier: string, limit: number = 5, window: number = 60000): Promise<boolean> {
-    // Implement rate limiting logic
-    // This is a simplified version - in production, use Redis or similar
-    try {
-      const key = `rate_limit:${identifier}`;
-      // await redisClient.incr(key);
-      // await redisClient.expire(key, window / 1000);
-      return true; // Simplified for demo
-    } catch {
-      return false;
-    }
-  }
-
-  // Account lockout
-  static async handleFailedLogin(email: string): Promise<void> {
-    // Implement account lockout logic
-    // Increment failed login attempts and lock account after threshold
-    try {
-      const key = `failed_login:${email}`;
-      // const attempts = await redisClient.incr(key);
-      // await redisClient.expire(key, 900); // 15 minutes
-
-      // if (attempts >= 5) {
-      //   await redisClient.setex(`locked:${email}`, 900, '1');
-      // }
-    } catch (error) {
-    }
-  }
-
-  static async isAccountLocked(email: string): Promise<boolean> {
-    try {
-      const key = `locked:${email}`;
-      // const locked = await redisClient.get(key);
-      return false; // Simplified for demo
-    } catch {
-      return false;
-    }
-  }
-
-  // Enhanced TOTP verification
-  static verifyTotp(token: string, secret: string): boolean {
-    try {
-      const speakeasy = require('speakeasy');
-      return speakeasy.totp.verify({
-        secret: secret,
-        encoding: 'base32',
-        token: token,
-        window: 1 // Allow 1 step clock skew
-      });
-    } catch (error) {
-      return false;
-    }
+  // Sanitization
+  static sanitizeInput(input: string): string {
+    return input.trim().replace(/[<>]/g, '');
   }
 }
 
-// Export Supabase client for use in components
 export { supabaseAuth };

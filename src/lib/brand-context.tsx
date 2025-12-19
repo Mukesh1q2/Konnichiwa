@@ -21,7 +21,7 @@ export function BrandProvider({ children }: { children: ReactNode }) {
     // Check URL params first
     const urlParams = new URLSearchParams(window.location.search);
     const brandParam = urlParams.get('brand') as Brand;
-    
+
     if (brandParam && BRAND_CONFIGS[brandParam]) {
       setCurrentBrand(brandParam);
     } else {
@@ -31,14 +31,18 @@ export function BrandProvider({ children }: { children: ReactNode }) {
         setCurrentBrand(stored);
       }
     }
-    
+
     setIsLoading(false);
   }, []);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-brand', currentBrand);
+  }, [currentBrand]);
 
   const switchBrand = (brand: Brand) => {
     setCurrentBrand(brand);
     localStorage.setItem('festival-brand', brand);
-    
+
     // Update URL without page reload
     const url = new URL(window.location.href);
     url.searchParams.set('brand', brand);

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ChevronDown } from 'lucide-react';
 import { BrandToggle } from '@/components/brand/BrandToggle';
@@ -28,7 +29,7 @@ const experiencesDropdown = [
 export function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isExperiencesOpen, setIsExperiencesOpen] = useState(false);
-  const { currentBrand } = useBrand();
+  const { currentBrand, brandConfig } = useBrand();
 
   const handleBuyTickets = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -42,10 +43,14 @@ export function Navigation() {
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-primary-500 rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold text-xl">
-                  {currentBrand === 'konnichiwa' ? '🎌' : '🕺'}
-                </span>
+              <div className="relative w-12 h-12 bg-primary-500 rounded-xl flex items-center justify-center overflow-hidden">
+                <Image
+                  src={brandConfig.images.logo}
+                  alt={brandConfig.displayName}
+                  width={32}
+                  height={32}
+                  className="object-contain"
+                />
               </div>
               <div className="hidden sm:block">
                 <h1 className="text-xl font-bold text-ink">

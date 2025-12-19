@@ -2,14 +2,14 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  MessageCircle, 
-  Send, 
-  Bot, 
-  User, 
-  Volume2, 
-  VolumeX, 
-  Mic, 
+import {
+  MessageCircle,
+  Send,
+  Bot,
+  User,
+  Volume2,
+  VolumeX,
+  Mic,
   MicOff,
   RotateCcw,
   Star,
@@ -58,11 +58,11 @@ const AI_ASSISTANTS: Record<string, AIAssistant> = {
   },
   namaste: {
     id: 'guru-ai',
-    name: 'Guru Prasad',
+    name: 'Ganesha AI',
     personality: 'Enthusiastic, wise, and deeply rooted in Indian traditions',
     expertise: ['Indian classical arts', 'Yoga philosophy', 'Bollywood culture', 'Spiritual practices', 'Festivals'],
     culturalBackground: 'Rich Indian heritage with contemporary understanding',
-    avatar: '/images/ai/guru-prasad.png',
+    avatar: '/images/ai/ganesha-ai.png',
     voiceStyle: 'Warm and inspiring'
   }
 };
@@ -126,7 +126,7 @@ interface CulturalAIChatbotProps {
   culturalMode?: boolean;
 }
 
-export function CulturalAIChatbot({ 
+export function CulturalAIChatbot({
   className,
   variant = 'floating',
   showVoice = true,
@@ -142,7 +142,7 @@ export function CulturalAIChatbot({
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [currentCategory, setCurrentCategory] = useState<'general' | 'cultural' | 'events' | 'learning'>('general');
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -154,7 +154,7 @@ export function CulturalAIChatbot({
       const welcomeMessage: ChatMessage = {
         id: 'welcome',
         type: 'ai',
-        content: culturalMode 
+        content: culturalMode
           ? getRandomGreeting()
           : `Hello! I'm ${aiAssistant.name}, your AI cultural guide. How can I help you today?`,
         timestamp: new Date(),
@@ -180,136 +180,6 @@ export function CulturalAIChatbot({
     return greetings[Math.floor(Math.random() * greetings.length)];
   };
 
-  const generateAIResponse = (userMessage: string): ChatMessage => {
-    const lowerMessage = userMessage.toLowerCase();
-    
-    // Cultural queries
-    if (lowerMessage.includes('culture') || lowerMessage.includes('tradition') || lowerMessage.includes('history')) {
-      const culturalTopics = CULTURAL_KNOWLEDGE_BASE.culturalEducation[currentBrand];
-      const randomTopic = culturalTopics[Math.floor(Math.random() * culturalTopics.length)];
-      
-      return {
-        id: Date.now().toString(),
-        type: 'ai',
-        content: randomTopic.response,
-        timestamp: new Date(),
-        category: 'cultural',
-        suggestions: randomTopic.suggestions,
-        culturalContext: randomTopic.topic
-      };
-    }
-    
-    // Event queries
-    if (lowerMessage.includes('event') || lowerMessage.includes('happening') || lowerMessage.includes('schedule')) {
-      const eventResponses = currentBrand === 'konnichiwa' 
-        ? "Today's events include sumo wrestling demonstrations, cosplay competitions, tea ceremony workshops, and taiko drumming performances! Each event offers a unique way to experience Japanese culture. Would you like details about any specific event? 🎌"
-        : "Today's events feature classical dance performances, Bollywood dance workshops, yoga sessions, henna art workshops, and spiritual meditation classes! Each experience celebrates the rich diversity of Indian culture. Which event interests you most? 🕉️";
-        
-      return {
-        id: Date.now().toString(),
-        type: 'ai',
-        content: eventResponses,
-        timestamp: new Date(),
-        category: 'event',
-        suggestions: [
-          'Event schedule',
-          'Ticket information',
-          'Event locations',
-          'Cultural significance'
-        ]
-      };
-    }
-    
-    // Navigation queries
-    if (lowerMessage.includes('where') || lowerMessage.includes('location') || lowerMessage.includes('find')) {
-      const navResponse = currentBrand === 'konnichiwa'
-        ? "I can help you navigate! The main areas include: Main Stage (sumo & performances), Cosplay Arena, Tea Ceremony Garden, Wellness Zone, and Food Court. You can also visit our AR Hunt for interactive cultural discovery! Where would you like to go? 🗺️"
-        : "Let me guide you around! Key locations: Cultural Stage (dance & music), Workshop Areas, Yoga Pavilion, Meditation Gardens, and Food Courts. Don't miss our AR Hunt for cultural exploration! Which area interests you? 🗺️";
-        
-      return {
-        id: Date.now().toString(),
-        type: 'ai',
-        content: navResponse,
-        timestamp: new Date(),
-        category: 'navigation',
-        suggestions: [
-          'AR Hunt locations',
-          'Food court info',
-          'Rest areas',
-          'Emergency info'
-        ]
-      };
-    }
-    
-    // Learning queries
-    if (lowerMessage.includes('learn') || lowerMessage.includes('teach') || lowerMessage.includes('understand')) {
-      const learningResponse = currentBrand === 'konnichiwa'
-        ? "I'd love to share Japanese culture with you! I can teach you about: tea ceremony traditions, the significance of cherry blossoms, sumo wrestling history, calligraphy basics, and modern Japanese pop culture. What would you like to explore first? 🌸"
-        : "Teaching is one of my greatest joys! I can guide you through: yoga philosophy and practice, the beauty of classical dance, the art of henna, Bollywood's cultural impact, and spiritual traditions. What calls to your heart? 🕉️";
-        
-      return {
-        id: Date.now().toString(),
-        type: 'ai',
-        content: learningResponse,
-        timestamp: new Date(),
-        category: 'learning',
-        suggestions: [
-          'Traditional arts',
-          'Modern influences',
-          'Spiritual practices',
-          'Cultural etiquette'
-        ]
-      };
-    }
-    
-    // Fun queries
-    if (lowerMessage.includes('fun') || lowerMessage.includes('interesting') || lowerMessage.includes('cool')) {
-      const funResponse = currentBrand === 'konnichiwa'
-        ? "How wonderful that you're here to have fun! Did you know that in Japan, there's a tradition called 'Kintsugi' - the art of repairing broken pottery with gold? It teaches us that our flaws make us more beautiful! Also, Japanese people have different words for different types of smiles! Would you like to learn more fascinating cultural facts? ✨"
-        : "Your enthusiasm is contagious! Here's a fun fact: The word 'Namaste' means 'I bow to the divine in you' - it's not just a greeting, it's a spiritual acknowledgment! Also, Indian classical dance has over 100 different hand gestures that tell complete stories! Want to discover more amazing cultural insights? 🌟";
-        
-      return {
-        id: Date.now().toString(),
-        type: 'ai',
-        content: funResponse,
-        timestamp: new Date(),
-        category: 'fun',
-        suggestions: [
-          'More fun facts',
-          'Cultural traditions',
-          'Modern adaptations',
-          'Personal stories'
-        ]
-      };
-    }
-    
-    // Default responses
-    const defaultResponses = currentBrand === 'konnichiwa'
-      ? [
-          "That's fascinating! In Japanese culture, we believe in 'kaizen' - continuous improvement. What aspect of your experience here interests you most?",
-          "I appreciate your curiosity! Japanese culture emphasizes harmony and respect. How can I help enhance your cultural journey?",
-          "Your questions warm my heart! As we say in Japan, 'Ichi-go ichi-e' - one time, one meeting. Each moment is unique and precious. What would you like to explore?"
-        ]
-      : [
-          "Your questions fill my spirit with joy! In our culture, we believe that sharing knowledge multiplies wisdom. What cultural aspect speaks to your heart?",
-          "Wonderful! The Sanskrit saying 'Vasudhaiva Kutumbakam' means 'The world is one family.' How can I help you feel connected to our cultural family?",
-          "Your curiosity is beautiful! As we say, 'Atithi Devo Bhava' - the guest is like God. How may I serve you in your cultural exploration?"
-        ];
-    
-    return {
-      id: Date.now().toString(),
-      type: 'ai',
-      content: defaultResponses[Math.floor(Math.random() * defaultResponses.length)],
-      timestamp: new Date(),
-      suggestions: [
-        'Tell me about culture',
-        'What should I see?',
-        'Cultural tips',
-        'Share a story'
-      ]
-    };
-  };
-
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
 
@@ -324,17 +194,57 @@ export function CulturalAIChatbot({
     setInputMessage('');
     setIsTyping(true);
 
-    // Simulate AI processing time
-    setTimeout(() => {
-      const aiResponse = generateAIResponse(inputMessage);
+    try {
+      const response = await fetch('/api/ai/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: [...messages, userMessage],
+          brand: currentBrand
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get AI response');
+      }
+
+      const data = await response.json();
+
+      const aiResponse: ChatMessage = {
+        id: Date.now().toString(),
+        type: 'ai',
+        content: data.text,
+        timestamp: new Date(),
+      };
+
       setMessages(prev => [...prev, aiResponse]);
+
+      if (voiceEnabled) {
+        speakMessage(data.text);
+      }
+    } catch (error) {
+      console.error('Chat Error:', error);
+      const errorMessage: ChatMessage = {
+        id: Date.now().toString(),
+        type: 'system',
+        content: "I'm having a little trouble connecting to my cultural scrolls right now. Please try again in a moment! 🙏",
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1000 + Math.random() * 2000);
+    }
   };
 
   const handleSuggestionClick = (suggestion: string) => {
     setInputMessage(suggestion);
-    setTimeout(() => handleSendMessage(), 100);
+    // Use a small delay to ensure state update before sending
+    setTimeout(() => {
+      const btn = document.querySelector('button[aria-label="Send message"]') as HTMLButtonElement;
+      btn?.click();
+    }, 100);
   };
 
   const handleVoiceInput = () => {
@@ -412,7 +322,7 @@ export function CulturalAIChatbot({
                 <p className="text-sm opacity-90">Cultural AI Assistant</p>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-2">
               {showVoice && (
                 <button
@@ -489,7 +399,7 @@ export function CulturalAIChatbot({
                     )}
                   </div>
                   <p className="text-sm">{message.content}</p>
-                  
+
                   {/* Cultural Context Badge */}
                   {message.culturalContext && (
                     <div className="mt-2">
@@ -499,7 +409,7 @@ export function CulturalAIChatbot({
                       </span>
                     </div>
                   )}
-                  
+
                   {/* Suggestions */}
                   {showSuggestions && message.suggestions && (
                     <div className="mt-3 space-y-1">
@@ -517,7 +427,7 @@ export function CulturalAIChatbot({
                 </div>
               </motion.div>
             ))}
-            
+
             {/* Typing Indicator */}
             {isTyping && (
               <motion.div
@@ -534,7 +444,7 @@ export function CulturalAIChatbot({
                 </div>
               </motion.div>
             )}
-            
+
             <div ref={messagesEndRef} />
           </div>
 
@@ -552,7 +462,7 @@ export function CulturalAIChatbot({
                   className="w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              
+
               {showVoice && (
                 <button
                   onClick={handleVoiceInput}
@@ -564,10 +474,11 @@ export function CulturalAIChatbot({
                   {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
                 </button>
               )}
-              
+
               <button
                 onClick={handleSendMessage}
                 disabled={!inputMessage.trim()}
+                aria-label="Send message"
                 className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full flex items-center justify-center hover:from-blue-600 hover:to-purple-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Send className="w-4 h-4" />

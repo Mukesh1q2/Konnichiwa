@@ -29,23 +29,18 @@ interface MascotData {
 
 const mascotData: Record<string, MascotData> = {
   konnichiwa: {
-    name: "Sakura-Chan",
-    description: "A modern anime girl representing Japanese culture with traditional values",
-    personality: ["Friendly", "Traditional", "Modern", "Respectful"],
+    name: "Sakura Sensei",
+    description: "A wise and friendly AI representing Japanese culture",
+    personality: ["Wise", "Traditional", "Modern", "Respectful"],
     catchphrases: [
-      "Konnichiwa! Welcome to our cultural journey! 🌸",
-      "Arigato for visiting our festival!",
-      "Let's explore Japanese culture together!",
-      "Sugoi! This event is amazing!"
+      "Konnichiwa! I am Sakura Sensei. How can I help you explore Japan? 🌸",
+      "Did you know? Omotenashi means wholehearted hospitality.",
+      "The cherry blossoms remind us that life is beautiful and fleeting.",
+      "Welcome to Konnichiwa Japan 2025! Enjoy the sumo and anime!"
     ],
     animations: ["waving", "bowing", "teaching", "celebrating", "explaining"],
-    voiceLines: [
-      "Cultural exchange brings us closer!",
-      "Respect for tradition and innovation!",
-      "Welcome, my friend!",
-      "Let's learn together!"
-    ],
-    image: "/images/mascots/sakura-chan.png",
+    voiceLines: [],
+    image: "/images/ai/sakura-sensei.png",
     colors: {
       primary: "from-pink-400 to-rose-500",
       secondary: "from-red-100 to-pink-100",
@@ -53,23 +48,18 @@ const mascotData: Record<string, MascotData> = {
     }
   },
   namaste: {
-    name: "Ganesha-Kun",
-    description: "An anime-inspired representation of Indian culture with wisdom and joy",
+    name: "Ganesha AI",
+    description: "A wise representation of Indian culture with joy",
     personality: ["Wise", "Playful", "Spiritual", "Inclusive"],
     catchphrases: [
-      "Namaste! Welcome to our cultural celebration! 🐘",
-      "A thousand blessings upon you!",
-      "Let's dance together in joy!",
-      "Culture connects hearts across borders!"
+      "Namaste! I am Ganesha AI. Let's celebrate our rich heritage! 🐘",
+      "Atithi Devo Bhava—the guest is like God in our culture.",
+      "Yoga is the journey of the self, through the self, to the self.",
+      "Welcome to Namaste India in Tokyo! Let's explore the Vedas together!"
     ],
     animations: ["dancing", "blessing", "teaching", "celebrating", "wisdom"],
-    voiceLines: [
-      "Unity in diversity is our strength!",
-      "Every culture has wisdom to share!",
-      "Blessings and welcome!",
-      "Together we create harmony!"
-    ],
-    image: "/images/mascots/ganesha-kun.png",
+    voiceLines: [],
+    image: "/images/ai/ganesha-ai.png",
     colors: {
       primary: "from-orange-400 to-amber-500",
       secondary: "from-orange-100 to-yellow-100",
@@ -99,7 +89,7 @@ export function AnimeMascot({
   };
 
   const positionClasses = {
-    'bottom-right': 'bottom-4 right-4',
+    'bottom-right': 'bottom-4 right-12',
     'bottom-left': 'bottom-4 left-4',
     'top-right': 'top-4 right-4',
     'top-left': 'top-4 left-4'
@@ -118,17 +108,31 @@ export function AnimeMascot({
     return () => clearInterval(interval);
   }, [autoAnimate, mascot.catchphrases.length]);
 
+  const speak = (text: string) => {
+    if (!soundEnabled || !('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = currentBrand === 'konnichiwa' ? 'en-US' : 'en-IN';
+    utterance.rate = 0.9;
+    utterance.pitch = 1.1;
+    speechSynthesis.speak(utterance);
+  };
+
   const handleClick = () => {
     if (!interactive) return;
 
     setIsPlaying(true);
     setCurrentAnimation('celebrating');
-    setCurrentCatchphrase(prev => (prev + 1) % mascot.catchphrases.length);
+    const nextIdx = (currentCatchphrase + 1) % mascot.catchphrases.length;
+    setCurrentCatchphrase(nextIdx);
+
+    // Voice catchphrase
+    speak(mascot.catchphrases[nextIdx]);
 
     setTimeout(() => {
       setIsPlaying(false);
       setCurrentAnimation('idle');
-    }, 3000);
+    }, 4000);
   };
 
   const animationVariants = {
@@ -143,7 +147,7 @@ export function AnimeMascot({
   const currentCatchphraseText = mascot.catchphrases[currentCatchphrase];
 
   return (
-    <div className={`fixed ${positionClasses[position]} z-50`}>
+    <div className={`fixed ${positionClasses[position]} z-[60]`}>
       <AnimatePresence>
         {isVisible && (
           <motion.div
@@ -165,38 +169,37 @@ export function AnimeMascot({
             onClick={handleClick}
           >
             {/* Mascot Container */}
-            <div className={`relative w-full h-full rounded-full bg-gradient-to-br ${mascot.colors.primary} shadow-lg cursor-pointer group`}>
-              {/* Mascot Image Placeholder */}
-              <div className="w-full h-full rounded-full bg-gradient-to-br from-white/20 to-transparent flex items-center justify-center">
-                <div className="text-4xl">
+            <div className={`relative w-full h-full rounded-full bg-gradient-to-br ${mascot.colors.primary} shadow-lg cursor-pointer group overflow-hidden border-4 border-white/30`}>
+              {/* Mascot Image */}
+              <div
+                className="w-full h-full bg-cover bg-center transition-transform group-hover:scale-110"
+                style={{ backgroundImage: `url('${mascot.image}')` }}
+              />
+
+              {/* Fallback emoji if image fails */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 group-hover:opacity-10 transition-opacity">
+                <span className="text-4xl">
                   {currentBrand === 'konnichiwa' ? '🌸' : '🐘'}
-                </div>
+                </span>
               </div>
 
               {/* Interaction Indicators */}
               {interactive && (
-                <div className="absolute -top-2 -right-2">
+                <div className="absolute top-2 right-2">
                   <motion.div
                     animate={{
                       scale: [1, 1.2, 1],
-                      rotate: [0, 10, -10, 0]
+                      opacity: [0.5, 1, 0.5]
                     }}
                     transition={{
                       duration: 2,
-                      repeat: Infinity,
-                      repeatDelay: 3
+                      repeat: Infinity
                     }}
-                    className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center"
+                    className="w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center shadow-sm"
+                    title="Engage with me!"
                   >
-                    <Star className="w-3 h-3 text-yellow-800" />
+                    <Star className="w-2 h-2 text-yellow-800" />
                   </motion.div>
-                </div>
-              )}
-
-              {/* Sound Indicator */}
-              {soundEnabled && (
-                <div className="absolute -bottom-2 -right-2">
-                  <Volume2 className="w-4 h-4 text-blue-600" />
                 </div>
               )}
             </div>
@@ -227,38 +230,43 @@ export function AnimeMascot({
         )}
       </AnimatePresence>
 
-      {/* Control Panel */}
-      {interactive && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
-          className="absolute -top-16 left-1/2 transform -translate-x-1/2 flex space-x-2"
-        >
-          {/* Sound Toggle */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setSoundEnabled(!soundEnabled);
-            }}
-            className={`w-8 h-8 rounded-full flex items-center justify-center shadow-lg ${soundEnabled ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'
-              }`}
+      {/* Control Panel - Positioned cleaner */}
+      <AnimatePresence>
+        {interactive && isVisible && (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            className="absolute top-0 -right-10 flex flex-col space-y-2"
           >
-            {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-          </button>
+            {/* Sound Toggle */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setSoundEnabled(!soundEnabled);
+                if (!soundEnabled) speak("Voice enabled");
+              }}
+              title={soundEnabled ? "Mute Voice" : "Enable Voice"}
+              className={`w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-all ${soundEnabled ? 'bg-blue-500 text-white' : 'bg-white/90 text-gray-600 hover:bg-gray-100'
+                }`}
+            >
+              {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+            </button>
 
-          {/* Minimize Button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsVisible(false);
-            }}
-            className="w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors"
-          >
-            ×
-          </button>
-        </motion.div>
-      )}
+            {/* Minimize Button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsVisible(false);
+              }}
+              title="Hide Mascot"
+              className="w-8 h-8 bg-white/90 text-red-500 rounded-full flex items-center justify-center shadow-lg hover:bg-red-50 transition-all"
+            >
+              <Heart className="w-4 h-4 fill-current" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Hidden mascot reference for future image integration */}
       <style jsx>{`

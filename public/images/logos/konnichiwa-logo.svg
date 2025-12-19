@@ -1,0 +1,133 @@
+<!-- Konnichiwa Japan Primary Logo (Horizontal) -->
+<svg width="400" height="120" viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Cherry blossom gradient -->
+    <linearGradient id="sakuraGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFB7C5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#C8102E;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Gold gradient for accents -->
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFA500;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background (transparent) -->
+  <rect width="400" height="120" fill="none"/>
+  
+  <!-- Logo mark: Stylized cherry blossom -->
+  <g transform="translate(60, 30)">
+    <!-- Center circle -->
+    <circle cx="20" cy="20" r="8" fill="url(#sakuraGradient)" stroke="#C8102E" stroke-width="1"/>
+    
+    <!-- Petal 1 -->
+    <ellipse cx="12" cy="12" rx="6" ry="10" fill="url(#sakuraGradient)" transform="rotate(-45 12 12)" stroke="#C8102E" stroke-width="0.5"/>
+    
+    <!-- Petal 2 -->
+    <ellipse cx="28" cy="12" rx="6" ry="10" fill="url(#sakuraGradient)" transform="rotate(45 28 12)" stroke="#C8102E" stroke-width="0.5"/>
+    
+    <!-- Petal 3 -->
+    <ellipse cx="12" cy="28" rx="6" ry="10" fill="url(#sakuraGradient)" transform="rotate(45 12 28)" stroke="#C8102E" stroke-width="0.5"/>
+    
+    <!-- Petal 4 -->
+    <ellipse cx="28" cy="28" rx="6" ry="10" fill="url(#sakuraGradient)" transform="rotate(-45 28 28)" stroke="#C8102E" stroke-width="0.5"/>
+    
+    <!-- Inner details -->
+    <circle cx="20" cy="20" r="3" fill="#FFD700"/>
+  </g>
+  
+  <!-- Brand text -->
+  <g transform="translate(120, 35)">
+    <!-- Konnichiwa -->
+    <text x="0" y="25" font-family="Noto Sans JP, sans-serif" font-size="24" font-weight="600" fill="#C8102E">
+      Konnichiwa
+    </text>
+    
+    <!-- Japan -->
+    <text x="0" y="50" font-family="Inter, sans-serif" font-size="18" font-weight="400" fill="#4A7C59">
+      Japan
+    </text>
+    
+    <!-- Tagline -->
+    <text x="0" y="70" font-family="Inter, sans-serif" font-size="12" font-weight="300" fill="#757575">
+      Cultural Festival
+    </text>
+  </g>
+  
+  <!-- Decorative elements -->
+  <g transform="translate(320, 25)" opacity="0.3">
+    <!-- Simple wave pattern -->
+    <path d="M0,20 Q25,0 50,20 T100,20" stroke="url(#goldGradient)" stroke-width="2" fill="none"/>
+    <path d="M0,30 Q25,10 50,30 T100,30" stroke="url(#goldGradient)" stroke-width="1.5" fill="none"/>
+  </g>
+</svg>
+
+<!-- Konnichiwa Japan Logo (Vertical) -->
+<svg width="200" height="240" viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sakuraGradientV" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFB7C5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#C8102E;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="goldGradientV" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFA500;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Logo mark (larger) -->
+  <g transform="translate(100, 80)">
+    <!-- Center circle -->
+    <circle cx="0" cy="0" r="20" fill="url(#sakuraGradientV)" stroke="#C8102E" stroke-width="2"/>
+    
+    <!-- Petals -->
+    <ellipse cx="0" cy="-15" rx="8" ry="15" fill="url(#sakuraGradientV)" transform="rotate(-45 0 -15)" stroke="#C8102E" stroke-width="1"/>
+    <ellipse cx="15" cy="0" rx="8" ry="15" fill="url(#sakuraGradientV)" transform="rotate(45 15 0)" stroke="#C8102E" stroke-width="1"/>
+    <ellipse cx="0" cy="15" rx="8" ry="15" fill="url(#sakuraGradientV)" transform="rotate(45 0 15)" stroke="#C8102E" stroke-width="1"/>
+    <ellipse cx="-15" cy="0" rx="8" ry="15" fill="url(#sakuraGradientV)" transform="rotate(-45 -15 0)" stroke="#C8102E" stroke-width="1"/>
+    
+    <!-- Inner details -->
+    <circle cx="0" cy="0" r="6" fill="#FFD700"/>
+  </g>
+  
+  <!-- Brand text -->
+  <g transform="translate(100, 160)" text-anchor="middle">
+    <text x="0" y="0" font-family="Noto Sans JP, sans-serif" font-size="20" font-weight="600" fill="#C8102E">
+      Konnichiwa
+    </text>
+    
+    <text x="0" y="25" font-family="Inter, sans-serif" font-size="16" font-weight="400" fill="#4A7C59">
+      Japan
+    </text>
+    
+    <text x="0" y="45" font-family="Inter, sans-serif" font-size="10" font-weight="300" fill="#757575">
+      Cultural Festival
+    </text>
+  </g>
+</svg>
+
+<!-- Konnichiwa Japan Single Color Logo (for single-color applications) -->
+<svg width="300" height="80" viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg">
+  <!-- Logo mark (monochrome) -->
+  <g transform="translate(40, 20)">
+    <!-- Simplified cherry blossom -->
+    <circle cx="15" cy="15" r="6" fill="#000000"/>
+    <ellipse cx="8" cy="8" rx="4" ry="8" fill="#000000" transform="rotate(-45 8 8)"/>
+    <ellipse cx="22" cy="8" rx="4" ry="8" fill="#000000" transform="rotate(45 22 8)"/>
+    <ellipse cx="8" cy="22" rx="4" ry="8" fill="#000000" transform="rotate(45 8 22)"/>
+    <ellipse cx="22" cy="22" rx="4" ry="8" fill="#000000" transform="rotate(-45 22 22)"/>
+  </g>
+  
+  <!-- Brand text (monochrome) -->
+  <g transform="translate(80, 25)">
+    <text x="0" y="20" font-family="Noto Sans JP, sans-serif" font-size="18" font-weight="600" fill="#000000">
+      Konnichiwa
+    </text>
+    <text x="0" y="40" font-family="Inter, sans-serif" font-size="14" font-weight="400" fill="#000000">
+      Japan
+    </text>
+  </g>
+</svg>

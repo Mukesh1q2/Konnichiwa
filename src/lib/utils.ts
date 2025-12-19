@@ -20,25 +20,25 @@ export function formatPrice(price: number, currency: string): string {
     style: 'currency',
     currency: currency,
   });
-  
+
   return formatter.format(price);
 }
 
 export function formatDate(dateString: string): string {
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
+  return date.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: '2-digit',
     year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+  }).replace(/\//g, '/');
 }
 
 export function formatDateTime(dateString: string): string {
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
+  return date.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: '2-digit',
     year: 'numeric',
-    month: 'long',
-    day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
   });
@@ -68,7 +68,7 @@ export function getEventImage(eventCategory: string): string {
     handicrafts: '/images/namaste_india_event_images_3.jpg',
     music: '/images/cosplay_competition_images_2.jpg',
   };
-  
+
   return categoryImages[eventCategory] || '/images/konnichiwa_japan_event_images_0.jpg';
 }
 
@@ -91,6 +91,6 @@ export function getEventCategoryLabel(category: string): string {
     handicrafts: 'Handicrafts & Art',
     music: 'Music & Concerts',
   };
-  
+
   return labels[category] || category;
 }
