@@ -290,6 +290,52 @@ export class AuthService {
   static sanitizeInput(input: string): string {
     return input.trim().replace(/[<>]/g, '');
   }
+
+  // Update User Profile
+  static async updateProfile(updates: Partial<AuthUser>): Promise<{
+    success: boolean;
+    user?: AuthUser;
+    error?: string;
+  }> {
+    try {
+      const { data: { user }, error } = await supabaseAuth.auth.updateUser({
+        data: {
+          full_name: updates.full_name,
+          phone: updates.phone,
+          brand_preference: updates.brand_preference,
+          interests: updates.interests,
+          avatar_url: updates.avatar_url
+        }
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      if (user) {
+        // Also update the database profile if available
+        try {
+          if (typeof window !== 'undefined' && user.id) {
+            await DatabaseService.updateUser(user.id, updates);
+          }
+        } catch (dbError) {
+          // Continue even if database update fails
+        }
+
+        return {
+          success: true,
+          user: {
+            ...user,
+            ...updates
+          } as unknown as AuthUser
+        };
+      }
+
+      return { success: false, error: 'Failed to update profile' };
+    } catch (error) {
+      return { success: false, error: 'Profile update failed' };
+    }
+  }
 }
 
 export { supabaseAuth };
