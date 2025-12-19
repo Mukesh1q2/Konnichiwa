@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   MessageCircle,
@@ -145,8 +146,64 @@ export function CulturalAIChatbot({
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const pathname = usePathname();
 
   const aiAssistant = AI_ASSISTANTS[currentBrand];
+
+  // Get smart suggestions based on current page
+  const getPageContextSuggestions = (): string[] => {
+    const baseSuggestions = currentBrand === 'konnichiwa'
+      ? ['Tell me about Japanese culture', 'What is Omotenashi?']
+      : ['Tell me about Indian heritage', 'Explain Dharma'];
+
+    if (pathname.includes('/events')) {
+      return [
+        'What events are happening today?',
+        'How do I buy tickets?',
+        'Where is the main stage?',
+        ...baseSuggestions.slice(0, 1)
+      ];
+    }
+    if (pathname.includes('/gallery')) {
+      return [
+        'Tell me about this art style',
+        'Who are the featured artists?',
+        'What is the theme of the gallery?',
+        ...baseSuggestions.slice(0, 1)
+      ];
+    }
+    if (pathname.includes('/about')) {
+      return [
+        'What is the mission of this festival?',
+        'Who organizes this event?',
+        'History of the festival',
+        ...baseSuggestions.slice(0, 1)
+      ];
+    }
+    if (pathname.includes('/education')) {
+      return [
+        'What workshops are available?',
+        'How can I learn more?',
+        currentBrand === 'konnichiwa' ? 'Teach me basic Japanese' : 'Teach me basic Hindi',
+        ...baseSuggestions.slice(0, 1)
+      ];
+    }
+    if (pathname.includes('/contact')) {
+      return [
+        'How can I reach the organizers?',
+        'Where is the venue located?',
+        'What are the support hours?',
+        ...baseSuggestions.slice(0, 1)
+      ];
+    }
+    // Default homepage suggestions
+    return [
+      'Tell me about the culture',
+      'What events are happening?',
+      'Help me navigate',
+      'Learn something new'
+    ];
+  };
 
   // Initialize with welcome message
   useEffect(() => {
@@ -159,16 +216,11 @@ export function CulturalAIChatbot({
           : `Hello! I'm ${aiAssistant.name}, your AI cultural guide. How can I help you today?`,
         timestamp: new Date(),
         category: 'greeting',
-        suggestions: [
-          'Tell me about the culture',
-          'What events are happening?',
-          'Help me navigate',
-          'Learn something new'
-        ]
+        suggestions: getPageContextSuggestions()
       };
       setMessages([welcomeMessage]);
     }
-  }, [currentBrand, culturalMode]);
+  }, [currentBrand, culturalMode, pathname]);
 
   // Auto-scroll to bottom
   useEffect(() => {
