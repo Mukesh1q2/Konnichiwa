@@ -83,7 +83,8 @@
   }
   
   .card-featured {
-    @apply border-2 border-primary-500 bg-primary-50;
+    @apply border-2 border-primary-500;
+    background-color: var(--color-accent);
   }
   
   /* Text styles */

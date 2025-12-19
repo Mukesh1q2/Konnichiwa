@@ -6,24 +6,21 @@ import { AccountLockoutService } from './lib/account-lockout';
 // Define which routes need protection
 const PROTECTED_ROUTES = [
   '/api/auth/',
-  '/api/payment/',
-  '/api/events/book',
   '/api/profile/'
 ];
 
 const RATE_LIMIT_CONFIGS = {
   '/api/auth/': RateLimiter.CONFIGS.AUTH,
-  '/api/payment/': RateLimiter.CONFIGS.PAYMENT,
   '/api/events/': RateLimiter.CONFIGS.API,
   '/api/': RateLimiter.CONFIGS.API
 };
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  
+
   // Check if route needs protection
   const needsProtection = PROTECTED_ROUTES.some(route => pathname.startsWith(route));
-  
+
   if (!needsProtection) {
     return NextResponse.next();
   }
@@ -31,19 +28,19 @@ export async function middleware(request: NextRequest) {
   // Apply rate limiting
   const clientIP = request.ip ?? request.headers.get('x-forwarded-for') ?? 'unknown';
   const identifier = `${clientIP}:${pathname}`;
-  
+
   // Find appropriate rate limit config
   const config = Object.entries(RATE_LIMIT_CONFIGS).find(([route]) => pathname.startsWith(route))?.[1];
   if (config) {
     const rateLimitResult = await RateLimiter.checkAndRecord(identifier, config);
-    
+
     if (!rateLimitResult.allowed) {
       return new NextResponse(
-        JSON.stringify({ 
+        JSON.stringify({
           error: 'Too many requests',
           retryAfter: Math.ceil((rateLimitResult.info.reset - Date.now()) / 1000)
         }),
-        { 
+        {
           status: 429,
           headers: {
             'Content-Type': 'application/json',
@@ -63,12 +60,12 @@ export async function middleware(request: NextRequest) {
       const lockoutStatus = await AccountLockoutService.checkAccountStatus(email);
       if (lockoutStatus.isLocked) {
         return new NextResponse(
-          JSON.stringify({ 
+          JSON.stringify({
             error: 'Account locked',
             message: 'Too many failed login attempts. Please try again later.',
             retryAfter: lockoutStatus.lockoutExpiresAt ? Math.ceil((lockoutStatus.lockoutExpiresAt.getTime() - Date.now()) / 1000) : 3600
           }),
-          { 
+          {
             status: 423,
             headers: { 'Content-Type': 'application/json' }
           }

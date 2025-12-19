@@ -82,8 +82,8 @@ export function HeroSection() {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
 
-              <Link
-                href="/tickets"
+              <button
+                onClick={() => alert('Ticket booking system is coming soon! Please check back later.')}
                 className={cn(
                   "inline-flex items-center justify-center px-8 py-4 rounded-pill font-semibold",
                   "bg-white/10 backdrop-blur-md text-white border border-white/20",
@@ -92,7 +92,7 @@ export function HeroSection() {
                 )}
               >
                 Buy Tickets
-              </Link>
+              </button>
             </motion.div>
 
             {/* Event Info */}

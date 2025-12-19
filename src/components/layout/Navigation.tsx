@@ -12,7 +12,6 @@ const mainNavigation = [
   { name: 'Home', href: '/' },
   { name: 'About', href: '/about' },
   { name: 'Events', href: '/events' },
-  { name: 'Tickets', href: '/tickets' },
   { name: 'Magazine', href: '/magazine' },
   { name: 'Gallery', href: '/gallery' },
   { name: 'Contact', href: '/contact' },
@@ -30,6 +29,11 @@ export function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isExperiencesOpen, setIsExperiencesOpen] = useState(false);
   const { currentBrand } = useBrand();
+
+  const handleBuyTickets = (e: React.MouseEvent) => {
+    e.preventDefault();
+    alert('Ticket booking system is coming soon! Please check back later.');
+  };
 
   return (
     <nav className="bg-surface border-b border-border sticky top-0 z-50 backdrop-blur-sm bg-surface/95">
@@ -58,7 +62,7 @@ export function Navigation() {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-8">
+          <div className="hidden lg:flex items-center space-x-8 ml-10">
             {mainNavigation.map((item) => (
               <Link
                 key={item.name}
@@ -114,12 +118,12 @@ export function Navigation() {
           {/* Brand Toggle & CTA */}
           <div className="flex items-center space-x-4">
             <BrandToggle className="hidden sm:flex" />
-            <Link
-              href="/tickets"
+            <button
+              onClick={handleBuyTickets}
               className="bg-primary-500 text-white px-6 py-3 rounded-pill font-semibold hover:bg-primary-700 transition-colors duration-200 text-sm"
             >
               Buy Tickets
-            </Link>
+            </button>
 
             {/* Mobile menu button */}
             <button
@@ -183,13 +187,12 @@ export function Navigation() {
               </div>
 
               {/* Mobile CTA */}
-              <Link
-                href="/tickets"
+              <button
+                onClick={handleBuyTickets}
                 className="block w-full bg-primary-500 text-white text-center px-6 py-3 rounded-pill font-semibold hover:bg-primary-700 transition-colors duration-200 mt-6"
-                onClick={() => setIsMobileMenuOpen(false)}
               >
                 Buy Tickets
-              </Link>
+              </button>
             </div>
           </motion.div>
         )}

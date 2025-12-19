@@ -1,161 +1,17 @@
 'use client';
 
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useBrand } from '@/lib/brand-context';
-import { TicketSelection } from '@/components/tickets/TicketSelection';
-import { CheckoutForm } from '@/components/tickets/CheckoutForm';
-import { TicketType } from '@/types';
-
-// Sample ticket types (same as in TicketSelection)
-const SAMPLE_TICKET_TYPES: TicketType[] = [
-  {
-    id: 'general',
-    name: 'General Entry Pass',
-    price: 500,
-    currency: 'INR',
-    accessLevel: 'general',
-    features: [
-      'Access to all public areas',
-      'Main stage shows',
-      'Cultural exhibitions',
-      'Shopping & food area access',
-      'Open workshops'
-    ],
-    maxQuantity: 10,
-    available: true,
-  },
-  {
-    id: 'workshop',
-    name: 'Workshop Pass',
-    price: 800,
-    currency: 'INR',
-    accessLevel: 'workshop',
-    features: [
-      'All General Entry features',
-      'Access to all workshops',
-      'Priority seating in cultural learning zones',
-      'Certificate of participation',
-      'Workshop materials included'
-    ],
-    maxQuantity: 5,
-    available: true,
-  },
-  {
-    id: 'vip',
-    name: 'VIP All-Access Pass',
-    price: 1500,
-    currency: 'INR',
-    accessLevel: 'vip',
-    features: [
-      'All Workshop Pass features',
-      'Fast-track entry',
-      'Reserved VIP seating',
-      'Meet & greet opportunities',
-      'VIP lounge access',
-      'Complimentary festival merchandise',
-      'Digital souvenir package'
-    ],
-    maxQuantity: 3,
-    available: true,
-  },
-  {
-    id: 'family',
-    name: 'Family Pack',
-    price: 1200,
-    currency: 'INR',
-    accessLevel: 'family',
-    features: [
-      'Entry for 2 adults + 2 children',
-      'Access to Kids Zone',
-      'Reserved family seating area',
-      'Family photo opportunity',
-      'Children\'s activity kit'
-    ],
-    maxQuantity: 2,
-    available: true,
-  },
-  {
-    id: 'student',
-    name: 'Student Pass',
-    price: 300,
-    currency: 'INR',
-    accessLevel: 'student',
-    features: [
-      'All General Entry features',
-      'Student discount pricing',
-      'Valid student ID required',
-      'Educational content access'
-    ],
-    maxQuantity: 5,
-    available: true,
-  },
-];
+import Link from 'next/link';
+import { ArrowLeft, Calendar, MapPin, Clock } from 'lucide-react';
 
 export default function TicketsPage() {
-  const { currentBrand, brandConfig } = useBrand();
-  const [selectedTickets, setSelectedTickets] = useState<Record<string, number>>({});
-  const [showCheckout, setShowCheckout] = useState(false);
-  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
-  const [paymentMessage, setPaymentMessage] = useState('');
-
-  const totalAmount = Object.entries(selectedTickets).reduce((total, [ticketId, quantity]) => {
-    const ticket = SAMPLE_TICKET_TYPES.find(t => t.id === ticketId);
-    return total + (ticket ? ticket.price * quantity : 0);
-  }, 0);
-
-  const totalItems = Object.values(selectedTickets).reduce((sum, quantity) => sum + quantity, 0);
-
-  const handleTicketChange = (ticketId: string, quantity: number) => {
-    setSelectedTickets(prev => ({
-      ...prev,
-      [ticketId]: quantity,
-    }));
-  };
-
-  const handleCheckout = () => {
-    if (totalItems === 0) {
-      setPaymentMessage('Please select at least one ticket');
-      setPaymentStatus('error');
-      return;
-    }
-    setShowCheckout(true);
-  };
-
-  const handlePaymentSuccess = (paymentData: any) => {
-    setPaymentStatus('success');
-    setPaymentMessage('Payment completed successfully! Check your email for ticket confirmation.');
-    
-    // Reset form after success
-    setTimeout(() => {
-      setSelectedTickets({});
-      setShowCheckout(false);
-      setPaymentStatus('idle');
-      setPaymentMessage('');
-    }, 3000);
-  };
-
-  const handlePaymentError = (error: string) => {
-    setPaymentStatus('error');
-    setPaymentMessage(error);
-    
-    // Reset error state after 5 seconds
-    setTimeout(() => {
-      setPaymentStatus('idle');
-      setPaymentMessage('');
-    }, 5000);
-  };
-
-  const handleBackToTickets = () => {
-    setShowCheckout(false);
-    setPaymentStatus('idle');
-    setPaymentMessage('');
-  };
+  const { currentBrand } = useBrand();
 
   return (
     <div className="min-h-screen bg-paper">
       {/* Header Section */}
-      <section className="bg-surface py-16">
+      <section className="bg-surface py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <motion.div
@@ -166,177 +22,94 @@ export default function TicketsPage() {
               <h1 className="text-hero font-serif text-ink mb-6">
                 {currentBrand === 'konnichiwa' ? 'Konnichiwa Japan Tickets' : 'Namaste India Tickets'}
               </h1>
-              <p className="text-bodyLarge text-slate max-w-3xl mx-auto">
-                {currentBrand === 'konnichiwa' 
-                  ? 'Choose your access to experience Japan\'s rich cultural heritage through performances, workshops, food, and unforgettable moments in Delhi.'
-                  : 'Select your tickets to discover India\'s vibrant traditions, classical arts, and contemporary expressions through dance, music, food, and spiritual wellness in Tokyo.'
-                }
+              <div className="inline-flex items-center px-4 py-2 bg-primary-50 rounded-pill text-primary-700 font-semibold mb-8">
+                <Clock className="w-4 h-4 mr-2" />
+                Coming Soon
+              </div>
+              <p className="text-bodyLarge text-slate max-w-2xl mx-auto mb-12">
+                Our advanced ticket booking system is currently under development.
+                We are preparing to bring you a seamless experience to secure your place at the
+                {currentBrand === 'konnichiwa' ? ' Konnichiwa Japan' : ' Namaste India'} festival.
               </p>
+
+              <div className="flex justify-center gap-4">
+                <Link
+                  href="/"
+                  className="inline-flex items-center px-8 py-3 bg-primary-500 text-white rounded-pill font-semibold hover:bg-primary-700 transition-colors duration-200"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Home
+                </Link>
+                <Link
+                  href="/events"
+                  className="inline-flex items-center px-8 py-3 border border-border text-ink rounded-pill font-semibold hover:bg-surface transition-colors duration-200"
+                >
+                  Explore Events
+                </Link>
+              </div>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Event Information */}
-      <section className="py-12 bg-accent-500">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-            >
-              <div className="text-3xl mb-2">📅</div>
-              <h3 className="text-h3 font-semibold text-ink mb-2">Event Dates</h3>
-              <p className="text-slate">
-                {currentBrand === 'konnichiwa' 
-                  ? 'December 13-14, 2025'
-                  : 'September 28-29, 2025'
-                }
-              </p>
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-            >
-              <div className="text-3xl mb-2">📍</div>
-              <h3 className="text-h3 font-semibold text-ink mb-2">Venue</h3>
-              <p className="text-slate">
-                {currentBrand === 'konnichiwa' 
-                  ? 'Select CITYWALK, Delhi'
-                  : 'Yoyogi Park, Tokyo'
-                }
-              </p>
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-            >
-              <div className="text-3xl mb-2">🎭</div>
-              <h3 className="text-h3 font-semibold text-ink mb-2">Experience</h3>
-              <p className="text-slate">
-                {currentBrand === 'konnichiwa' 
-                  ? '600+ Japanese Artists'
-                  : '600+ Indian Performers'
-                }
-              </p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Main Content */}
+      {/* Info Section */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <AnimatePresence mode="wait">
-            {!showCheckout ? (
-              <motion.div
-                key="ticket-selection"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-              >
-                <TicketSelection
-                  ticketTypes={SAMPLE_TICKET_TYPES}
-                  selectedTickets={selectedTickets}
-                  onTicketChange={handleTicketChange}
-                  onCheckout={handleCheckout}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="space-y-6"
+            >
+              <h2 className="text-h2 font-serif text-ink">Be the First to Know</h2>
+              <p className="text-slate">
+                Sign up for our newsletter to receive an exclusive notification as soon as
+                ticket bookings go live. Early birds will get access to special promotional
+                pricing and limited VIP packages.
+              </p>
+              <div className="flex gap-2">
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  className="flex-1 px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
-              </motion.div>
-            ) : (
-              <motion.div
-                key="checkout"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-              >
-                <CheckoutForm
-                  selectedTickets={selectedTickets}
-                  ticketTypes={SAMPLE_TICKET_TYPES}
-                  totalAmount={totalAmount}
-                  onBack={handleBackToTickets}
-                  onSuccess={handlePaymentSuccess}
-                  onError={handlePaymentError}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </section>
-
-      {/* Payment Status Messages */}
-      <AnimatePresence>
-        {paymentStatus !== 'idle' && paymentMessage && (
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-            className={`fixed bottom-4 right-4 max-w-md p-4 rounded-lg shadow-lg z-50 ${
-              paymentStatus === 'success' 
-                ? 'bg-green-100 border border-green-200 text-green-800'
-                : 'bg-red-100 border border-red-200 text-red-800'
-            }`}
-          >
-            <div className="flex items-start">
-              <div className="flex-shrink-0">
-                {paymentStatus === 'success' ? (
-                  <svg className="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                ) : (
-                  <svg className="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                  </svg>
-                )}
+                <button className="px-6 py-3 bg-primary-500 text-white rounded-lg font-semibold hover:bg-primary-700 transition-colors duration-200">
+                  Notify Me
+                </button>
               </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium">{paymentMessage}</p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="grid grid-cols-1 gap-4"
+            >
+              <div className="card p-6 flex items-start space-x-4">
+                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Calendar className="text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-ink">Save the Date</h3>
+                  <p className="text-sm text-slate">
+                    {currentBrand === 'konnichiwa' ? 'December 13-14, 2025' : 'September 28-29, 2025'}
+                  </p>
+                </div>
               </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
-      {/* FAQ Section */}
-      <section className="py-16 bg-surface">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-h2 font-serif text-ink mb-4">Frequently Asked Questions</h2>
-            <p className="text-slate">Everything you need to know about tickets and the festival</p>
-          </div>
-
-          <div className="space-y-6">
-            <div className="card p-6">
-              <h3 className="text-lg font-semibold text-ink mb-2">Are tickets refundable?</h3>
-              <p className="text-slate">
-                Refunds are allowed up to 7 days before the festival. After that, tickets are non-refundable but transferable.
-              </p>
-            </div>
-
-            <div className="card p-6">
-              <h3 className="text-lg font-semibold text-ink mb-2">Is re-entry allowed?</h3>
-              <p className="text-slate">
-                Yes, with a valid wristband or digital festival pass. You can come and go throughout the day.
-              </p>
-            </div>
-
-            <div className="card p-6">
-              <h3 className="text-lg font-semibold text-ink mb-2">Do children need tickets?</h3>
-              <p className="text-slate">
-                Children below 6 years enter free with parents. Children aged 6-12 require a discounted ticket.
-              </p>
-            </div>
-
-            <div className="card p-6">
-              <h3 className="text-lg font-semibold text-ink mb-2">Are tickets available at the venue?</h3>
-              <p className="text-slate">
-                Limited tickets may be available at the venue, but online booking is recommended to secure your preferred dates and avoid sold-out situations.
-              </p>
-            </div>
+              <div className="card p-6 flex items-start space-x-4">
+                <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <MapPin className="text-green-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-ink">Location</h3>
+                  <p className="text-sm text-slate">
+                    {currentBrand === 'konnichiwa' ? 'Select CITYWALK, Delhi' : 'Yoyogi Park, Tokyo'}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
