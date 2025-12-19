@@ -1,7 +1,3 @@
 {
-    "buildCommand": "cd konnichiwa-namaste-website && npm run build",
-    "devCommand": "cd konnichiwa-namaste-website && npm run dev",
-    "installCommand": "cd konnichiwa-namaste-website && npm install",
-    "framework": "nextjs",
-    "outputDirectory": "konnichiwa-namaste-website/.next"
+    "framework": "nextjs"
 }
