@@ -1,29 +1,100 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, Calendar, MapPin } from 'lucide-react';
+import { ArrowRight, Calendar, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useBrand } from '@/lib/brand-context';
 import { cn } from '@/lib/utils';
 
 export function HeroSection() {
   const { brandConfig, currentBrand } = useBrand();
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Get slider images or fallback to single hero image
+  const sliderImages = brandConfig.images.sliderImages || [brandConfig.images.hero];
+  const hasSlider = sliderImages.length > 1;
+
+  // Auto-advance slides every 5 seconds
+  useEffect(() => {
+    if (!hasSlider) return;
+
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % sliderImages.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [hasSlider, sliderImages.length]);
+
+  const goToSlide = (index: number) => setCurrentSlide(index);
+  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % sliderImages.length);
+  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + sliderImages.length) % sliderImages.length);
 
   return (
     <section className="relative h-screen min-h-[600px] overflow-hidden">
-      {/* Background Image */}
+      {/* Background Image Slider */}
       <div className="absolute inset-0">
-        <Image
-          src={brandConfig.images.hero}
-          alt={brandConfig.displayName}
-          fill
-          className="object-cover"
-          priority
-          quality={90}
-        />
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentSlide}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            className="absolute inset-0"
+          >
+            <Image
+              src={sliderImages[currentSlide]}
+              alt={`${brandConfig.displayName} - Slide ${currentSlide + 1}`}
+              fill
+              className="object-cover"
+              priority
+              quality={90}
+            />
+          </motion.div>
+        </AnimatePresence>
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60" />
       </div>
+
+      {/* Slider Navigation Arrows */}
+      {hasSlider && (
+        <>
+          <button
+            onClick={prevSlide}
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+            aria-label="Previous slide"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <button
+            onClick={nextSlide}
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+            aria-label="Next slide"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+        </>
+      )}
+
+      {/* Slider Dots */}
+      {hasSlider && (
+        <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 flex space-x-2">
+          {sliderImages.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => goToSlide(index)}
+              className={cn(
+                "w-2.5 h-2.5 rounded-full transition-all duration-300",
+                currentSlide === index
+                  ? "bg-white w-8"
+                  : "bg-white/50 hover:bg-white/70"
+              )}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Content */}
       <div className="relative z-10 h-full flex items-center">

@@ -14,6 +14,7 @@ export interface BrandConfig {
     hero: string;
     logo: string;
     favicon: string;
+    sliderImages?: string[];
   };
   locale: {
     default: string;
@@ -38,9 +39,22 @@ export const BRAND_CONFIGS: Record<Brand, BrandConfig> = {
       accent: '#FEF2F2',
     },
     images: {
-      hero: '/images/konnichiwa_japan_event_images_0.jpg',
+      hero: '/images/slider/Konnichiwa_2025_7168.JPG',
       logo: '/images/logos/konnichiwa-logo.svg',
       favicon: '/images/logos/konnichiwa-favicon.svg',
+      sliderImages: [
+        '/images/slider/Konnichiwa_2025_7160.JPG',
+        '/images/slider/Konnichiwa_2025_7168.JPG',
+        '/images/slider/Konnichiwa_2025_7208.JPG',
+        '/images/slider/Konnichiwa_2025_7227.JPG',
+        '/images/slider/Konnichiwa_2025_7279.JPG',
+        '/images/slider/Konnichiwa_2025_7334.JPG',
+        '/images/slider/Konnichiwa_2025_7404.JPG',
+        '/images/slider/Konnichiwa_2025_7408.JPG',
+        '/images/slider/Konnichiwa_2025_7431.JPG',
+        '/images/slider/Konnichiwa_2025_7450.JPG',
+        '/images/slider/Konnichiwa_2025_7452.JPG',
+      ],
     },
     locale: {
       default: 'en',
